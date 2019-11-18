@@ -34,7 +34,11 @@ void ASGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	/// Setup the movement bindings and the functions to call (remember, don't use () when referencing '&' a function)
 	PlayerInputComponent->BindAxis("Move Forward", this, &ASGCharacter::MoveForward);										
-	PlayerInputComponent->BindAxis("Move Right", this, &ASGCharacter::MoveRight);											
+	PlayerInputComponent->BindAxis("Move Right", this, &ASGCharacter::MoveRight);
+
+	/// Setup Look bindings
+	PlayerInputComponent->BindAxis("Look Up", this, &ASGCharacter::AddControllerPitchInput);								// AddControllerPitchInput is built in function.
+	PlayerInputComponent->BindAxis("Turn", this, &ASGCharacter::AddControllerYawInput);								// AddControllerYawInput is built in function.
 }
 
 void ASGCharacter::MoveForward(float Amount)
