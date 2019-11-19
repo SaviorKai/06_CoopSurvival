@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "SGCharacter.generated.h"
 
+class UCameraComponent;
+class USpringArmComponent;
+
 UCLASS()
 class COOPSURVIVAL_API ASGCharacter : public ACharacter
 {
@@ -27,6 +30,12 @@ protected:
 
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Setup")								
+	UCameraComponent* CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Setup")
+	USpringArmComponent* SpringArm;
 
 };
 
@@ -93,3 +102,6 @@ And next, set the up in the UE4 Editor, properties window.
 
 	Same names as used in C++, use Mouse X / Mouse Y, or the controller stick X / Y.
 */
+
+
+
