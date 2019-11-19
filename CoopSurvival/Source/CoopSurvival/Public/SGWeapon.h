@@ -27,7 +27,7 @@ protected:
 	USkeletalMeshComponent* GunMeshComponent;
 
 	UFUNCTION(BlueprintCallable, Category="Weapon")
-	void Fire();
+	virtual void Fire();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")
 	float BaseDamage = 20.0f;
@@ -36,7 +36,11 @@ protected:
 	TSubclassOf<UDamageType> DamageType;										
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup")
-	FName MuzzleSocketName;
+		FName MuzzleSocketName;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup")
+	FName TracerBeamEndName;
+	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor
 	UParticleSystem* MuzzleEffect;

@@ -20,6 +20,7 @@ ASGWeapon::ASGWeapon()
 	SetRootComponent(Cast<USceneComponent>(GunMeshComponent));
 
 	MuzzleSocketName = "MuzzleSocket";
+	TracerBeamEndName = "BeamEnd";
 
 }
 
@@ -103,7 +104,7 @@ void ASGWeapon::Fire()
 		if (!TracerPartSystemComp) { return; }
 		
 		// Set parameters specific to this Particle System Type (Beam)
-		TracerPartSystemComp->SetVectorParameter("BeamEnd", FinalHitLocation); //NOTE: Name was something we get/set from the particle system in the UE4 Editor.
+		TracerPartSystemComp->SetVectorParameter(TracerBeamEndName, FinalHitLocation); //NOTE: Name was something we get/set from the particle system in the UE4 Editor.
 	}
 	/// DEBUG CODE ///
 	//DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
