@@ -58,6 +58,9 @@ void ASGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	/// Bind Actions
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASGCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASGCharacter::EndCrouch);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump); // Note: Jump is already a function on ACharacter (so no need to use our class, or define this)
+
 }
 
 void ASGCharacter::MoveForward(float Amount)
@@ -72,10 +75,10 @@ void ASGCharacter::MoveRight(float Amount)
 
 void ASGCharacter::BeginCrouch()
 {
-	Crouch();					//Built in UE4 Function
+	Crouch();					//Built in UE4 Function. This makes the capsule tiny in size, which also moves the camera down, since the main point is lower.
 }
 
 void ASGCharacter::EndCrouch()
 {
-	UnCrouch();					//Built in UE4 Function
+	UnCrouch();					//Built in UE4 Function - this resets the capsule size.
 }
