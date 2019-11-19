@@ -30,7 +30,7 @@ void ASGWeapon::Fire()
 	/// Trace the world, from Pawn Eyes, to Crosshair location.															
 	
 	// Calculate Start Location
-	auto MyOwner = GetOwner();
+	auto MyOwner = GetOwner();													// NOTE!!! You have to set it's 'Owner' var on SPAWN for this to work. 
 	if (!MyOwner) { return; }													// Pointer protection.
 	FVector EyeLocation;
 	FRotator EyeRotation;														// We don't use this, but need an Out parameter for this function.
@@ -45,7 +45,7 @@ void ASGWeapon::Fire()
 	QueryParams.AddIgnoredActor(this);			// Ignore ourselves (gun mesh)
 	QueryParams.bTraceComplex = true;			// Trace to Complex Collision Mesh on Target (not Simple collision mesh)
 
-	// Do the line trace
+	// Do the line trace/
 	FHitResult Hit;
 	if ( // If Line Trace succeeds //
 		GetWorld()->LineTraceSingleByChannel(

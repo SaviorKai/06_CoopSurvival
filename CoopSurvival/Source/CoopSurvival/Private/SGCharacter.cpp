@@ -59,26 +59,34 @@ void ASGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASGCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASGCharacter::EndCrouch);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump); // Note: Jump is already a function on ACharacter (so no need to use our class, or define this)
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);	// Note: Jump is already a function on ACharacter (so no need to use our class, or define this)
 
 }
 
+
 void ASGCharacter::MoveForward(float Amount)
 {
-	AddMovementInput(GetActorForwardVector() * Amount);																		// Add movement input for the character based on the value of the axis in the Actor forward direction. (Forward and back movement with +1 to -1)
+	AddMovementInput(GetActorForwardVector() * Amount);						// Add movement input for the character based on the value of the axis in the Actor forward direction. (Forward and back movement with +1 to -1)
 }
 
 void ASGCharacter::MoveRight(float Amount)
 {
-	AddMovementInput(GetActorRightVector() * Amount);																		// Add movement input for the character based on the value of the axis in the Actor Right direction. (Left and Right movement with +1 to -1)
+	AddMovementInput(GetActorRightVector() * Amount);						// Add movement input for the character based on the value of the axis in the Actor Right direction. (Left and Right movement with +1 to -1)
 }
 
 void ASGCharacter::BeginCrouch()
 {
-	Crouch();					//Built in UE4 Function. This makes the capsule tiny in size, which also moves the camera down, since the main point is lower.
+	Crouch();																// Built in UE4 Function. This makes the capsule tiny in size, which also moves the camera down, since the main point is lower.
 }
 
 void ASGCharacter::EndCrouch()
 {
-	UnCrouch();					//Built in UE4 Function - this resets the capsule size.
+	UnCrouch();																// Built in UE4 Function - this resets the capsule size.
+}
+
+FVector ASGCharacter::GetPawnViewLocation() const
+{
+	if (!CameraComponent) { return Super::GetPawnViewLocation(); }			// Pointer Protection (Return the original function code from the super (inherited) class).
+	
+	return CameraComponent->GetComponentLocation();
 }
