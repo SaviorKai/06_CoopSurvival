@@ -62,3 +62,4 @@ void ASGCharacter::MoveRight(float Amount)
 {
 	AddMovementInput(GetActorRightVector() * Amount);																		// Add movement input for the character based on the value of the axis in the Actor Right direction. (Left and Right movement with +1 to -1)
 }
+
