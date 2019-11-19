@@ -7,6 +7,7 @@
 #include "SGWeapon.generated.h"
 
 class USkeletalMeshComponent;
+class UDamageType;
 
 UCLASS()
 class COOPSURVIVAL_API ASGWeapon : public AActor
@@ -26,6 +27,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void Fire();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")
+	float BaseDamage = 20.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")
+	TSubclassOf<UDamageType> DamageType;										// NOTE: This is set in the blueprint editor, since we made it a dropdown
 
 public:	
 	// Called every frame

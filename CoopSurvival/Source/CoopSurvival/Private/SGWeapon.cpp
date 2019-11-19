@@ -4,6 +4,7 @@
 #include "SGWeapon.h"
 #include "Engine/World.h" //GetWorld()
 #include "DrawDebugHelpers.h" // Debug Drawing
+#include "Kismet/GameplayStatics.h" // Damage
 
 // Sets default values
 ASGWeapon::ASGWeapon()
@@ -45,7 +46,7 @@ void ASGWeapon::Fire()
 	QueryParams.AddIgnoredActor(this);			// Ignore ourselves (gun mesh)
 	QueryParams.bTraceComplex = true;			// Trace to Complex Collision Mesh on Target (not Simple collision mesh)
 
-	// Do the line trace/
+	/// Do the line trace
 	FHitResult Hit;
 	if ( // If Line Trace succeeds //
 		GetWorld()->LineTraceSingleByChannel(
@@ -56,7 +57,19 @@ void ASGWeapon::Fire()
 			QueryParams																// Pass the Query Params
 		))
 	{
-		// Do code.
+		// Process Damage
+		AActor* HitActor = Hit.GetActor();
+		if (!HitActor) { return; }													// Pointer Protection
+
+		UGameplayStatics::ApplyPointDamage(
+			HitActor,
+			BaseDamage,
+			EyeRotation.Vector(),
+			Hit,
+			MyOwner->GetInstigatorController(),
+			this,
+			DamageType
+		);
 	}
 
 	/// DEBUG CODE ///
