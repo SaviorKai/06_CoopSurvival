@@ -44,6 +44,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor
 	UParticleSystem* HitEffect;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor
+	UParticleSystem* TracerEffect;
+	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

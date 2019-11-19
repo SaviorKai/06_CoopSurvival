@@ -6,6 +6,8 @@
 #include "DrawDebugHelpers.h" // Debug Drawing
 #include "Kismet/GameplayStatics.h" // Damage
 #include "Particles/ParticleSystem.h" // For Particle system spawning.
+#include "Particles/ParticleSystemComponent.h" //TracerPartSystemComp
+#include "Components/SkeletalMeshComponent.h" //GetSocketLocation
 
 // Sets default values
 ASGWeapon::ASGWeapon()
@@ -41,6 +43,7 @@ void ASGWeapon::Fire()
 	
 	// Calculate End Location
 	FVector EndLocation = EyeLocation + (EyeRotation.Vector() * 10000);			// No need to update this magic number, it should be far enough to hit something.
+	FVector FinalHitLocation = EndLocation;										// This is set here, and updated depending on if we hit something.
 
 	// Set Collision Parameters for the trace
 	FCollisionQueryParams QueryParams;
@@ -59,6 +62,9 @@ void ASGWeapon::Fire()
 			QueryParams																// Pass the Query Params
 		))
 	{
+		// Update FinalHitLocation (for Tracer Particle)
+		FinalHitLocation = Hit.ImpactPoint;
+		
 		// Process Damage
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) { return; }													// Pointer Protection
@@ -80,16 +86,28 @@ void ASGWeapon::Fire()
 		}
 	}
 
-	/// DEBUG CODE ///
-	DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
-
 	/// Particle Effect: Muzzle
 	if (MuzzleEffect)
 	{
 		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, GunMeshComponent, MuzzleSocketName);
 	}
 
-	
+	/// Particle Effect: TracerSmoke
+	if (TracerEffect)
+	{
+		// Get the socket location from the mesh
+		FVector MuzzleLocation = GunMeshComponent->GetSocketLocation(MuzzleSocketName);
+		
+		// Spawn the Particle system start point at the muzzle (and set it to a var we can call)
+		auto TracerPartSystemComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
+		if (!TracerPartSystemComp) { return; }
+		
+		// Set parameters specific to this Particle System Type (Beam)
+		TracerPartSystemComp->SetVectorParameter("BeamEnd", FinalHitLocation); //NOTE: Name was something we get/set from the particle system in the UE4 Editor.
+	}
+	/// DEBUG CODE ///
+	//DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
+
 }
 
 // Called every frame
