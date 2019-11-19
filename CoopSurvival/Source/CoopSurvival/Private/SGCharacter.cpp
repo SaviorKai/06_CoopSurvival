@@ -4,6 +4,7 @@
 #include "SGCharacter.h"
 #include "Camera/CameraComponent.h" // UCameraComponent
 #include "GameFramework/SpringArmComponent.h" // USpringArmComponent
+#include "GameFramework/PawnMovementComponent.h" // GetMovementComponent()
 
 // Sets default values
 ASGCharacter::ASGCharacter()
@@ -15,6 +16,8 @@ ASGCharacter::ASGCharacter()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->bUsePawnControlRotation = true;														//Uses the pawn control rotation instead.
 	SpringArm->SetupAttachment(RootComponent);
+
+	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;							// Turns on Crouching.
 
 	/// Create Camera Component
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
@@ -50,7 +53,11 @@ void ASGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	/// Setup Look bindings
 	PlayerInputComponent->BindAxis("Look Up", this, &ASGCharacter::AddControllerPitchInput);								// AddControllerPitchInput is built in function.
-	PlayerInputComponent->BindAxis("Turn", this, &ASGCharacter::AddControllerYawInput);								// AddControllerYawInput is built in function.
+	PlayerInputComponent->BindAxis("Turn", this, &ASGCharacter::AddControllerYawInput);										// AddControllerYawInput is built in function.
+
+	/// Bind Actions
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASGCharacter::BeginCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASGCharacter::EndCrouch);
 }
 
 void ASGCharacter::MoveForward(float Amount)
@@ -63,3 +70,12 @@ void ASGCharacter::MoveRight(float Amount)
 	AddMovementInput(GetActorRightVector() * Amount);																		// Add movement input for the character based on the value of the axis in the Actor Right direction. (Left and Right movement with +1 to -1)
 }
 
+void ASGCharacter::BeginCrouch()
+{
+	Crouch();					//Built in UE4 Function
+}
+
+void ASGCharacter::EndCrouch()
+{
+	UnCrouch();					//Built in UE4 Function
+}

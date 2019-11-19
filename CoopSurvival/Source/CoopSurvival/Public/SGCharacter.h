@@ -28,10 +28,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/// Movement Functions.
+	/// Movement Fucntions.
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
-
+	void BeginCrouch();
+	void EndCrouch();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Setup")								
 	UCameraComponent* CameraComponent;
