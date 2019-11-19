@@ -5,6 +5,7 @@
 #include "Engine/World.h" //GetWorld()
 #include "DrawDebugHelpers.h" // Debug Drawing
 #include "Kismet/GameplayStatics.h" // Damage
+#include "Particles/ParticleSystem.h" // For Particle system spawning.
 
 // Sets default values
 ASGWeapon::ASGWeapon()
@@ -16,6 +17,7 @@ ASGWeapon::ASGWeapon()
 	GunMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComponent"));
 	SetRootComponent(Cast<USceneComponent>(GunMeshComponent));
 
+	MuzzleSocketName = "MuzzleSocket";
 
 }
 
@@ -70,10 +72,22 @@ void ASGWeapon::Fire()
 			this,
 			DamageType
 		);
+
+		// Particle Effect: Hit
+		if (HitEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+		}
 	}
 
 	/// DEBUG CODE ///
 	DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
+
+	/// Particle Effect: Muzzle
+	if (MuzzleEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, GunMeshComponent, MuzzleSocketName);
+	}
 
 	
 }
