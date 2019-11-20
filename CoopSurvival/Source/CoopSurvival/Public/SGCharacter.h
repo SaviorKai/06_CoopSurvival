@@ -42,7 +42,8 @@ protected:
 	void EndCrouch();
 	void BeginZoom();
 	void EndZoom();
-	void FireWeapon();
+	void StartFireWeapon();
+	void StopFireWeapon();
 
 	/// Weapon Properties
 	ASGWeapon* CurrentWeapon;

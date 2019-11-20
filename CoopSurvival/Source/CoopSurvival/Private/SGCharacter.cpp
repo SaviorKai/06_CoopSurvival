@@ -91,7 +91,8 @@ void ASGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("AimDownSight", IE_Pressed, this, &ASGCharacter::BeginZoom);
 	PlayerInputComponent->BindAction("AimDownSight", IE_Released, this, &ASGCharacter::EndZoom);
 
-	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &ASGCharacter::FireWeapon);
+	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &ASGCharacter::StartFireWeapon);
+	PlayerInputComponent->BindAction("FireWeapon", IE_Released, this, &ASGCharacter::StopFireWeapon);
 }
 
 
@@ -127,11 +128,18 @@ void ASGCharacter::EndZoom()
 	bWantsToZoom = false;
 }
 
-void ASGCharacter::FireWeapon()
+void ASGCharacter::StartFireWeapon()
 {
 	/// Fire your weapon
 	if (!CurrentWeapon) { return; }							// Pointer protection
-	CurrentWeapon->Fire();
+	CurrentWeapon->StartFire();
+}
+
+void ASGCharacter::StopFireWeapon()
+{
+	/// Fire your weapon
+	if (!CurrentWeapon) { return; }							// Pointer protection
+	CurrentWeapon->StopFire();
 }
 
 FVector ASGCharacter::GetPawnViewLocation() const

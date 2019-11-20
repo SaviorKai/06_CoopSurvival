@@ -21,10 +21,21 @@ public:
 	ASGWeapon();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-		virtual void Fire();
+		virtual void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+		virtual void StopFire();
 
 protected:
 	virtual void PlayFireEffects(FVector FinalHitLocation);
+
+	virtual void Fire();
+
+	FTimerHandle TimerHandle_TimeBetweenShots;
+	float LastFireTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")									// NOTE: This is set in the blueprint editor
+	float FireRate = 1.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Setup")
 	USkeletalMeshComponent* GunMeshComponent;

@@ -10,6 +10,7 @@
 #include "Components/SkeletalMeshComponent.h" //GetSocketLocation
 #include "Camera/CameraShake.h" // UCameraShake
 #include "PhysicalMaterials/PhysicalMaterial.h" // UPhysicalMaterial
+#include "TimerManager.h" // Timers
 
 /// Console Command for DebugDrawing on Weapons
 static int32 DebugWeaponDrawing = 0;
@@ -33,6 +34,24 @@ ASGWeapon::ASGWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 	TracerBeamEndName = "BeamEnd";
 
+}
+
+
+void ASGWeapon::StartFire()
+{
+	/// Get Time since Fired, and Fire if enough time has passed.
+	float CurrentTime = GetWorld()->TimeSeconds;
+	float TimeSinceFired = CurrentTime - LastFireTime;
+
+	if (TimeSinceFired > FireRate)
+	{
+		GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASGWeapon::Fire, FireRate, true, 0.0f); // Sets the timer (var), for this class, to execute this funciton, every 1.0f second (loop)
+	}
+}
+
+void ASGWeapon::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);  // Stop the timer and ensures the event doesn't go off again. 
 }
 
 void ASGWeapon::Fire()
@@ -120,6 +139,9 @@ void ASGWeapon::Fire()
 	/// Play Particle Effects
 	PlayFireEffects(FinalHitLocation);
 
+	/// Set Last Fire Time for Weapon cool down
+	LastFireTime = GetWorld()->TimeSeconds;
+
 	/// DEBUG CODE ///
 	if (DebugWeaponDrawing > 0)
 	{
@@ -127,6 +149,7 @@ void ASGWeapon::Fire()
 	}
 
 }
+
 
 void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
 {
