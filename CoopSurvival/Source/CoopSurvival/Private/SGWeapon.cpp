@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystem.h" // For Particle system spawning.
 #include "Particles/ParticleSystemComponent.h" //TracerPartSystemComp
 #include "Components/SkeletalMeshComponent.h" //GetSocketLocation
+#include "Camera/CameraShake.h" // UCameraShake
 
 /// Console Command for DebugDrawing on Weapons
 static int32 DebugWeaponDrawing = 0;
@@ -121,4 +122,17 @@ void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
 		// Set parameters specific to this Particle System Type (Beam)
 		TracerPartSystemComp->SetVectorParameter(TracerBeamEndName, FinalHitLocation); //NOTE: Name was something we get/set from the particle system in the UE4 Editor.
 	}
+
+	/// Camera Shake
+	// Get Owning Actor, and Cast to APawn for GetController()
+	auto MyPawn = Cast<APawn>(GetOwner());										
+	
+	// Get AController and Cast to APlayerController for ClientPlayCameraShake()
+	if (!MyPawn) { return; }													// Pointer protection.
+	auto MyPlayerController = Cast<APlayerController>(MyPawn->GetController());
+
+	// Play Shake 
+	if (!MyPlayerController) { return; }
+	MyPlayerController->ClientPlayCameraShake(FireCamShakeClass);    
+
 }

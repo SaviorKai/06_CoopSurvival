@@ -9,6 +9,7 @@
 class USkeletalMeshComponent;
 class UDamageType;
 class UParticleSystem;
+class UCameraShake;
 
 UCLASS()
 class COOPSURVIVAL_API ASGWeapon : public AActor
@@ -31,7 +32,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")
 	float BaseDamage = 20.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor, since we made it a dropdown
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor (and we made it a dropdown)
 	TSubclassOf<UDamageType> DamageType;										
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup")
@@ -48,6 +49,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor
 	UParticleSystem* TracerEffect;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")									// NOTE: This is set in the blueprint editor (and we made it a dropdown)
+	TSubclassOf<UCameraShake> FireCamShakeClass;
+
 
 
 };
