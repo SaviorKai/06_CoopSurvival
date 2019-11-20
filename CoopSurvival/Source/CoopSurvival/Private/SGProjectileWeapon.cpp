@@ -26,4 +26,8 @@ void ASGProjectileWeapon::Fire()
 
 	// Spawn Projectile
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, EyeRotation, SpawnParams);
+
+	// PlayEffects
+	PlayFireEffects(FVector::ZeroVector); // Call this function from Inherent Class
 }
+

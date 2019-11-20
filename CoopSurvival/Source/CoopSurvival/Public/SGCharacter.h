@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class ASGWeapon;
 
 UCLASS()
 class COOPSURVIVAL_API ASGCharacter : public ACharacter
@@ -41,6 +42,16 @@ protected:
 	void EndCrouch();
 	void BeginZoom();
 	void EndZoom();
+	void FireWeapon();
+
+	/// Weapon Properties
+	ASGWeapon* CurrentWeapon;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Setup")
+	FName WeaponAttachSocketName;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	TSubclassOf<ASGWeapon> StarterWeaponClass; // Set in Blueprint
 
 	/// Camera Properties
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Setup")								

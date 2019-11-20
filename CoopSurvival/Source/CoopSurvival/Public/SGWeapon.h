@@ -19,15 +19,14 @@ public:
 	// Sets default values for this actor's properties
 	ASGWeapon();
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+		virtual void Fire();
+
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void PlayFireEffects(FVector FinalHitLocation);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Setup")
 	USkeletalMeshComponent* GunMeshComponent;
-
-	UFUNCTION(BlueprintCallable, Category="Weapon")
-	virtual void Fire();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")
 	float BaseDamage = 20.0f;
@@ -36,12 +35,11 @@ protected:
 	TSubclassOf<UDamageType> DamageType;										
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup")
-		FName MuzzleSocketName;
+	FName MuzzleSocketName;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup")
 	FName TracerBeamEndName;
 	
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor
 	UParticleSystem* MuzzleEffect;
 	
@@ -50,10 +48,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")				// NOTE: This is set in the blueprint editor
 	UParticleSystem* TracerEffect;
-	
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 };

@@ -1,10 +1,11 @@
-// Fill out your copyright notice in t	he Description page of Project Settings.
-
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SGCharacter.h"
 #include "Camera/CameraComponent.h" // UCameraComponent
 #include "GameFramework/SpringArmComponent.h" // USpringArmComponent
 #include "GameFramework/PawnMovementComponent.h" // GetMovementComponent()
+#include "Engine/World.h" // FActorSpawnParameters, GetWorld()
+#include "SGWeapon.h" // ASGWeapon
 
 // Sets default values
 ASGCharacter::ASGCharacter()
@@ -23,6 +24,8 @@ ASGCharacter::ASGCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArm);
 
+	/// Setup Weapon Socket
+	WeaponAttachSocketName = "WeaponSocket";
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +36,22 @@ void ASGCharacter::BeginPlay()
 	/// Aim Down Sights FOV
 	DefaultFOV = CameraComponent->FieldOfView;			// Gets the current Field of view, and stores it as the default. This is important if the player wants to change it or if you want to change it.
 	
+	/// Spawn Weapon
+	if (!StarterWeaponClass) { return; }				//Pointer protection
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;  // IMPORTANT
+	SpawnParams.Owner = this;
+	
+	FVector SpawnLocation = FVector::ZeroVector;
+	FRotator SpawnRotation = FRotator::ZeroRotator;
+
+	CurrentWeapon = GetWorld()->SpawnActor<ASGWeapon>(StarterWeaponClass, SpawnLocation, SpawnRotation, SpawnParams);
+	
+	if (!CurrentWeapon) { return; }						// Pointer Protection
+	CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
+
+
 }
 
 
@@ -71,6 +90,8 @@ void ASGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("AimDownSight", IE_Pressed, this, &ASGCharacter::BeginZoom);
 	PlayerInputComponent->BindAction("AimDownSight", IE_Released, this, &ASGCharacter::EndZoom);
+
+	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &ASGCharacter::FireWeapon);
 }
 
 
@@ -104,6 +125,13 @@ void ASGCharacter::EndZoom()
 {
 	/// Return to normal FOV
 	bWantsToZoom = false;
+}
+
+void ASGCharacter::FireWeapon()
+{
+	/// Fire your weapon
+	if (!CurrentWeapon) { return; }							// Pointer protection
+	CurrentWeapon->Fire();
 }
 
 FVector ASGCharacter::GetPawnViewLocation() const

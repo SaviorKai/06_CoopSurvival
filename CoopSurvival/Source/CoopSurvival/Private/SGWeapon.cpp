@@ -22,7 +22,7 @@ FAutoConsoleVariableRef CVARDebugWeaponDrawing(
 ASGWeapon::ASGWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	
 	/// Create Mesh Component
 	GunMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComponent"));
@@ -31,13 +31,6 @@ ASGWeapon::ASGWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 	TracerBeamEndName = "BeamEnd";
 
-}
-
-// Called when the game starts or when spawned
-void ASGWeapon::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 void ASGWeapon::Fire()
@@ -96,6 +89,19 @@ void ASGWeapon::Fire()
 		}
 	}
 
+	/// Play Particle Effects
+	PlayFireEffects(FinalHitLocation);
+
+	/// DEBUG CODE ///
+	if (DebugWeaponDrawing > 0)
+	{
+		DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
+	}
+
+}
+
+void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
+{
 	/// Particle Effect: Muzzle
 	if (MuzzleEffect)
 	{
@@ -107,27 +113,12 @@ void ASGWeapon::Fire()
 	{
 		// Get the socket location from the mesh
 		FVector MuzzleLocation = GunMeshComponent->GetSocketLocation(MuzzleSocketName);
-		
+
 		// Spawn the Particle system start point at the muzzle (and set it to a var we can call)
 		auto TracerPartSystemComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
 		if (!TracerPartSystemComp) { return; }
-		
+
 		// Set parameters specific to this Particle System Type (Beam)
 		TracerPartSystemComp->SetVectorParameter(TracerBeamEndName, FinalHitLocation); //NOTE: Name was something we get/set from the particle system in the UE4 Editor.
 	}
-
-	if (DebugWeaponDrawing > 0)
-	{
-		/// DEBUG CODE ///
-		DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
-	}
-
 }
-
-// Called every frame
-void ASGWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
