@@ -6,6 +6,7 @@
 #include "GameFramework/PawnMovementComponent.h" // GetMovementComponent()
 #include "Engine/World.h" // FActorSpawnParameters, GetWorld()
 #include "SGWeapon.h" // ASGWeapon
+#include "Components/CapsuleComponent.h" // Capsule Component
 
 // Sets default values
 ASGCharacter::ASGCharacter()
@@ -19,6 +20,7 @@ ASGCharacter::ASGCharacter()
 	SpringArm->SetupAttachment(RootComponent);
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;							// Turns on Crouching.
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);		// Turn Blocking off for the capsule. We want the Mesh to handle this, not capsule.
 
 	/// Create Camera Component
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
