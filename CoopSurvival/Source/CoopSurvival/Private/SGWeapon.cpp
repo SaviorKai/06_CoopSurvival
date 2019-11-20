@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h" //TracerPartSystemComp
 #include "Components/SkeletalMeshComponent.h" //GetSocketLocation
 #include "Camera/CameraShake.h" // UCameraShake
+#include "PhysicalMaterials/PhysicalMaterial.h" // UPhysicalMaterial
 
 /// Console Command for DebugDrawing on Weapons
 static int32 DebugWeaponDrawing = 0;
@@ -51,9 +52,10 @@ void ASGWeapon::Fire()
 
 	// Set Collision Parameters for the trace
 	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(MyOwner);		// Ignore our Owner character
-	QueryParams.AddIgnoredActor(this);			// Ignore ourselves (gun mesh)
-	QueryParams.bTraceComplex = true;			// Trace to Complex Collision Mesh on Target (not Simple collision mesh)
+	QueryParams.AddIgnoredActor(MyOwner);			// Ignore our Owner character
+	QueryParams.AddIgnoredActor(this);				// Ignore ourselves (gun mesh)
+	QueryParams.bTraceComplex = true;				// Trace to Complex Collision Mesh on Target (not Simple collision mesh)
+	QueryParams.bReturnPhysicalMaterial = true;		// Required for getting the surface types via surface material.
 
 	/// Do the line trace
 	FHitResult Hit;
@@ -66,10 +68,10 @@ void ASGWeapon::Fire()
 			QueryParams																// Pass the Query Params
 		))
 	{
-		// Update FinalHitLocation (for Tracer Particle)
+		/// Update FinalHitLocation (for Tracer Particle)
 		FinalHitLocation = Hit.ImpactPoint;
 		
-		// Process Damage
+		/// Process Damage
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) { return; }													// Pointer Protection
 
@@ -83,10 +85,29 @@ void ASGWeapon::Fire()
 			DamageType
 		);
 
-		// Particle Effect: Hit
-		if (HitEffect)
+		/// Play Particle Effect Based on Surface Hit (NOTE! Make sure QueryParams.bReturnPhysicalMaterial = true; for the linetrace hit)
+		EPhysicalSurface HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());  // Used Get() here, because its a weak object pointer and we want to get the object.
+				
+		UParticleSystem* SelectedEffect = nullptr;
+		
+		switch (HitSurfaceType)											// Check the HitSurfaceType and run code depending on its result
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+		case SurfaceType1:	// FleshDefault								// SurfaceType1 is a var set in UE4 Project Editor. You can define this to something else if you want.
+			SelectedEffect = FleshHitEffect;
+			break;
+
+		case SurfaceType2: // FleshCritical								// SurfaceType2 is a var set in UE4 Project Editor (Surface Types)
+			SelectedEffect = FleshCritEffect;
+			break;
+
+		default:
+			SelectedEffect = DefaultHitEffect;							// If none of the above, use the default.
+			break;
+		}
+
+		if (SelectedEffect)												// Play Selected Effect
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}
 	}
 
