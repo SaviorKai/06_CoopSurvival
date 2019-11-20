@@ -9,6 +9,15 @@
 #include "Particles/ParticleSystemComponent.h" //TracerPartSystemComp
 #include "Components/SkeletalMeshComponent.h" //GetSocketLocation
 
+/// Console Command for DebugDrawing on Weapons
+static int32 DebugWeaponDrawing = 0;
+FAutoConsoleVariableRef CVARDebugWeaponDrawing(
+	TEXT("COOP.DebugWeapons"),									// Command we want to enter in console
+	DebugWeaponDrawing,											// The Var we want to reference
+	TEXT("Draws debug lines for weapons."),						// Help text.
+	ECVF_Cheat);												// States that this is a cheat, and will only work with cheats enabled.
+
+
 // Sets default values
 ASGWeapon::ASGWeapon()
 {
@@ -106,8 +115,12 @@ void ASGWeapon::Fire()
 		// Set parameters specific to this Particle System Type (Beam)
 		TracerPartSystemComp->SetVectorParameter(TracerBeamEndName, FinalHitLocation); //NOTE: Name was something we get/set from the particle system in the UE4 Editor.
 	}
-	/// DEBUG CODE ///
-	//DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
+
+	if (DebugWeaponDrawing > 0)
+	{
+		/// DEBUG CODE ///
+		DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
+	}
 
 }
 
