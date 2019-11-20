@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in t	he Description page of Project Settings.
 
 
 #include "SGCharacter.h"
@@ -23,14 +23,15 @@ ASGCharacter::ASGCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArm);
 
-
-
 }
 
 // Called when the game starts or when spawned
 void ASGCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/// Aim Down Sights FOV
+	DefaultFOV = CameraComponent->FieldOfView;			// Gets the current Field of view, and stores it as the default. This is important if the player wants to change it or if you want to change it.
 	
 }
 
@@ -39,6 +40,13 @@ void ASGCharacter::BeginPlay()
 void ASGCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	/// Aim Down Sights FOV
+	float CurrentFOV = CameraComponent->FieldOfView;
+	float TargetFOV = bWantsToZoom ? ZoomedFOV : DefaultFOV; // This sets the var based on the bool statement.
+	float NewFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaTime, ZoomInterpSpeed); // FOV this frame   // Interpolation! 
+	
+	CameraComponent->SetFieldOfView(NewFOV);
 
 }
 
@@ -61,6 +69,8 @@ void ASGCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);	// Note: Jump is already a function on ACharacter (so no need to use our class, or define this)
 
+	PlayerInputComponent->BindAction("AimDownSight", IE_Pressed, this, &ASGCharacter::BeginZoom);
+	PlayerInputComponent->BindAction("AimDownSight", IE_Released, this, &ASGCharacter::EndZoom);
 }
 
 
@@ -82,6 +92,18 @@ void ASGCharacter::BeginCrouch()
 void ASGCharacter::EndCrouch()
 {
 	UnCrouch();																// Built in UE4 Function - this resets the capsule size.
+}
+
+void ASGCharacter::BeginZoom()
+{
+	/// Aim Down Sights
+	bWantsToZoom = true;
+}
+
+void ASGCharacter::EndZoom()
+{
+	/// Return to normal FOV
+	bWantsToZoom = false;
 }
 
 FVector ASGCharacter::GetPawnViewLocation() const

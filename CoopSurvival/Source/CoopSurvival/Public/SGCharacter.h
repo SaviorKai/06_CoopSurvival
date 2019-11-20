@@ -32,18 +32,33 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/// Movement Fucntions.
+	/// Movement Functions.
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
+	
+	/// Action Functions
 	void BeginCrouch();
 	void EndCrouch();
+	void BeginZoom();
+	void EndZoom();
 
+	/// Camera Properties
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Setup")								
 	UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Setup")
 	USpringArmComponent* SpringArm;
 
+	/// Aim Down Sight FOV Properties.
+	bool bWantsToZoom;
+	
+	float DefaultFOV; // Set in constructor
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float ZoomedFOV = 65.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (ClampMin = 1.0f, ClampMax = 100.0f))   /// meta = (ClampMin = 1.0f, ClampMax = 100.0f)), useful for clamping values in editor for designers.
+	float ZoomInterpSpeed = 20.0f;
 };
 
 
