@@ -59,7 +59,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Setup")
 	USGHealthComponent* HealthComponent;
 
-	
+	UPROPERTY(BlueprintReadOnly, Category="Setup")
+	bool bHasDied;																// Used by the animation blueprint graph, and also to ensure we don't play effects twice. 
 
 	UFUNCTION() // REQUIRED FOR EVENT DELEGATES
 	void HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

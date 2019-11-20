@@ -159,7 +159,13 @@ void ASGCharacter::HandleOnHealthChanged(USGHealthComponent* HealthComp, float H
 {
 	if (Health <= 0.0f && !bHasDied)
 	{
-
+		// Die!
+		bHasDied = true;
 		
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
+		DetachFromControllerPendingDestroy();											// Remove Controller
+		SetLifeSpan(10.0f);																// Destroy this actor in seconds.
+
 	}
 }
