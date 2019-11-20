@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ASGWeapon;
+class USGHealthComponent;
 
 UCLASS()
 class COOPSURVIVAL_API ASGCharacter : public ACharacter
@@ -53,6 +54,15 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<ASGWeapon> StarterWeaponClass; // Set in Blueprint
+	
+	/// Health Properties
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Setup")
+	USGHealthComponent* HealthComponent;
+
+	
+
+	UFUNCTION() // REQUIRED FOR EVENT DELEGATES
+	void HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	/// Camera Properties
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Setup")								

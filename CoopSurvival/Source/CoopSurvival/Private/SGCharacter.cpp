@@ -7,13 +7,14 @@
 #include "Engine/World.h" // FActorSpawnParameters, GetWorld()
 #include "SGWeapon.h" // ASGWeapon
 #include "Components/CapsuleComponent.h" // Capsule Component
+#include "SGHealthComponent.h" // USGHealthComponent
 
 // Sets default values
 ASGCharacter::ASGCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	/// Create Spring Arm for Camera
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->bUsePawnControlRotation = true;														//Uses the pawn control rotation instead.
@@ -25,6 +26,9 @@ ASGCharacter::ASGCharacter()
 	/// Create Camera Component
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArm);
+
+	/// Create Health Component
+	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));			// Doesn't need attachment, since it's a ActorComponent (not scene component)
 
 	/// Setup Weapon Socket
 	WeaponAttachSocketName = "WeaponSocket";
@@ -53,7 +57,7 @@ void ASGCharacter::BeginPlay()
 	if (!CurrentWeapon) { return; }						// Pointer Protection
 	CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
 
-
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASGCharacter::HandleOnHealthChanged);
 }
 
 
@@ -133,14 +137,14 @@ void ASGCharacter::EndZoom()
 void ASGCharacter::StartFireWeapon()
 {
 	/// Fire your weapon
-	if (!CurrentWeapon) { return; }							// Pointer protection
+	if (!CurrentWeapon) { return; }											// Pointer protection
 	CurrentWeapon->StartFire();
 }
 
 void ASGCharacter::StopFireWeapon()
 {
 	/// Fire your weapon
-	if (!CurrentWeapon) { return; }							// Pointer protection
+	if (!CurrentWeapon) { return; }											// Pointer protection
 	CurrentWeapon->StopFire();
 }
 
@@ -149,4 +153,13 @@ FVector ASGCharacter::GetPawnViewLocation() const
 	if (!CameraComponent) { return Super::GetPawnViewLocation(); }			// Pointer Protection (Return the original function code from the super (inherited) class).
 	
 	return CameraComponent->GetComponentLocation();
+}
+
+void ASGCharacter::HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (Health <= 0.0f && !bHasDied)
+	{
+
+		
+	}
 }
