@@ -80,7 +80,7 @@ void ASGWeapon::Fire()
 		float DamageToApply = BaseDamage;
 		if (HitSurfaceType == SurfaceType2) //  if FleshCritical	
 		{
-			float DamageToApply = BaseDamage * 4.0f; // Apply Critical bonus
+			DamageToApply = BaseDamage * 4.0f; // Apply Critical bonus
 		}
 
 		UGameplayStatics::ApplyPointDamage(
