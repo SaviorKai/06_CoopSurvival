@@ -64,7 +64,7 @@ void ASGWeapon::Fire()
 			Hit,																	// OUT Parameter
 			EyeLocation,
 			EndLocation,
-			ECC_Visibility,															// Anything blocking our visibility
+			ECC_GameTraceChannel1,													// ECC_GameTraceChannel1 is set in UE4 Project Properties in TraceChannels // ECC_Visibility Anything blocking our visibility
 			QueryParams																// Pass the Query Params
 		))
 	{
@@ -75,9 +75,17 @@ void ASGWeapon::Fire()
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) { return; }													// Pointer Protection
 
+		EPhysicalSurface HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());  // Used Get() here, because its a weak object pointer and we want to get the object.
+
+		float DamageToApply = BaseDamage;
+		if (HitSurfaceType == SurfaceType2) //  if FleshCritical	
+		{
+			float DamageToApply = BaseDamage * 4.0f; // Apply Critical bonus
+		}
+
 		UGameplayStatics::ApplyPointDamage(
 			HitActor,
-			BaseDamage,
+			DamageToApply,
 			EyeRotation.Vector(),
 			Hit,
 			MyOwner->GetInstigatorController(),
@@ -86,8 +94,6 @@ void ASGWeapon::Fire()
 		);
 
 		/// Play Particle Effect Based on Surface Hit (NOTE! Make sure QueryParams.bReturnPhysicalMaterial = true; for the linetrace hit)
-		EPhysicalSurface HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());  // Used Get() here, because its a weak object pointer and we want to get the object.
-				
 		UParticleSystem* SelectedEffect = nullptr;
 		
 		switch (HitSurfaceType)											// Check the HitSurfaceType and run code depending on its result
