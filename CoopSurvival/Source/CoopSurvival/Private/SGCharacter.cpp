@@ -8,6 +8,7 @@
 #include "SGWeapon.h" // ASGWeapon
 #include "Components/CapsuleComponent.h" // Capsule Component
 #include "SGHealthComponent.h" // USGHealthComponent
+#include "Components/InputComponent.h" // UInputComponent
 
 // Sets default values
 ASGCharacter::ASGCharacter()
@@ -55,7 +56,7 @@ void ASGCharacter::BeginPlay()
 	CurrentWeapon = GetWorld()->SpawnActor<ASGWeapon>(StarterWeaponClass, SpawnLocation, SpawnRotation, SpawnParams);
 	
 	if (!CurrentWeapon) { return; }						// Pointer Protection
-	CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
+	CurrentWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
 
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASGCharacter::HandleOnHealthChanged);
 }
