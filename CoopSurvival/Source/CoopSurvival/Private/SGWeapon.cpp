@@ -58,6 +58,12 @@ void ASGWeapon::StopFire()
 
 void ASGWeapon::Fire()
 {
+	/// [NETWORKING] If this is run on client, tell it to run the server fire command instead, which will tell the server to run the ServerFunction. The ServerFunction will then run Fire();
+	if (Role < ROLE_Authority)
+	{
+		ServerFire();
+	}
+	
 	/// Trace the world, from Pawn Eyes, to Crosshair location.															
 	
 	// Calculate Start Location
@@ -187,4 +193,15 @@ void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
 	if (!MyPlayerController) { return; }
 	MyPlayerController->ClientPlayCameraShake(FireCamShakeClass);    
 
+}
+
+
+void ASGWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool ASGWeapon::ServerFire_Validate()
+{
+	return true;
 }
