@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h" // Capsule Component
 #include "SGHealthComponent.h" // USGHealthComponent
 #include "Components/InputComponent.h" // UInputComponent
+#include "Net/UnrealNetwork.h" // DOREPLIFETIME & GetLifetimeReplicatedProps
 
 // Sets default values
 ASGCharacter::ASGCharacter()
@@ -43,22 +44,25 @@ void ASGCharacter::BeginPlay()
 	/// Aim Down Sights FOV
 	DefaultFOV = CameraComponent->FieldOfView;			// Gets the current Field of view, and stores it as the default. This is important if the player wants to change it or if you want to change it.
 	
-	/// Spawn Weapon
-	if (!StarterWeaponClass) { return; }				//Pointer protection
-	
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;  // IMPORTANT
-	SpawnParams.Owner = this;
-	
-	FVector SpawnLocation = FVector::ZeroVector;
-	FRotator SpawnRotation = FRotator::ZeroRotator;
-
-	CurrentWeapon = GetWorld()->SpawnActor<ASGWeapon>(StarterWeaponClass, SpawnLocation, SpawnRotation, SpawnParams);
-	
-	if (!CurrentWeapon) { return; }						// Pointer Protection
-	CurrentWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
-
+	/// OnHealthChanged Delegate
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASGCharacter::HandleOnHealthChanged);
+	
+	/// Spawn Weapon
+	if (Role == ROLE_Authority)  // [ NETWORKING ] : Ensures this is only run on server.
+	{
+		if (!StarterWeaponClass) { return; }				//Pointer protection
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;  // IMPORTANT
+		SpawnParams.Owner = this;
+		FVector SpawnLocation = FVector::ZeroVector;
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		CurrentWeapon = GetWorld()->SpawnActor<ASGWeapon>(StarterWeaponClass, SpawnLocation, SpawnRotation, SpawnParams);
+
+		if (!CurrentWeapon) { return; }						// Pointer Protection
+		CurrentWeapon->AttachToComponent(Cast<USceneComponent>(GetMesh()), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponAttachSocketName);
+	}
+
 }
 
 
@@ -169,4 +173,13 @@ void ASGCharacter::HandleOnHealthChanged(USGHealthComponent* HealthComp, float H
 		SetLifeSpan(10.0f);																// Destroy this actor in seconds.
 
 	}
+}
+
+
+// Networking Replication Rules
+void ASGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASGCharacter, CurrentWeapon);       // Example: DOREPLIFETIME(AIGuard, GuardState);
 }

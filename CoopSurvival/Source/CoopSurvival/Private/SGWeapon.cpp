@@ -34,6 +34,8 @@ ASGWeapon::ASGWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 	TracerBeamEndName = "BeamEnd";
 
+	SetReplicates(true);
+
 }
 
 

@@ -47,6 +47,7 @@ protected:
 	void StopFireWeapon();
 
 	/// Weapon Properties
+	UPROPERTY(Replicated)
 	ASGWeapon* CurrentWeapon;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Setup")
@@ -82,6 +83,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (ClampMin = 1.0f, ClampMax = 100.0f))   /// meta = (ClampMin = 1.0f, ClampMax = 100.0f)), useful for clamping values in editor for designers.
 	float ZoomInterpSpeed = 20.0f;
+
+	// Network Replication Rules Function (Not required, but Added here for code readability.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
 
 
