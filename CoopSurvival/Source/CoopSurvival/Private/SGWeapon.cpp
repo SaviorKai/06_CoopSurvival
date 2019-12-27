@@ -63,7 +63,7 @@ void ASGWeapon::StopFire()
 
 void ASGWeapon::Fire()
 {
-	/// [NETWORKING] If this is run on client, tell it to run the server fire command instead, which will tell the server to run the ServerFunction. The ServerFunction will then run Fire();
+	/// [NETWORKING] If this is run on client, tell it to run the server fire command for that actor on itself and OTHER clients, which will tell the server to run the ServerFunction. The ServerFunction will then run Fire();
 	if (Role < ROLE_Authority)
 	{
 		ServerFire();

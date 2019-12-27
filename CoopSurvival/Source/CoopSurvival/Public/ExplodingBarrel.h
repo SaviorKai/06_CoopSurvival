@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ExplodingBarrel.generated.h"
 
+
 class USGHealthComponent;
 class UStaticMeshComponent;
 class URadialForceComponent;
@@ -35,16 +36,27 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Setup")
 	URadialForceComponent* RadialForceComponent;
 
+	UPROPERTY(ReplicatedUsing = OnRep_HasDied)
+	bool bHasDied = false;
+
+	UFUNCTION()
+	void OnRep_HasDied();
+
 	UFUNCTION()
 	void HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+	void PlayExplodeEffects();
+
+	//[NETWORKING] Network Replication Rules Function (Not required, but Added here for code readability.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	bool bHasDied = false;
+
+	
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float UpwardForce = 600.0f;

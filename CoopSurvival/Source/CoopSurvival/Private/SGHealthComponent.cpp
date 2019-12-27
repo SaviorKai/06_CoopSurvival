@@ -14,7 +14,7 @@ USGHealthComponent::USGHealthComponent()
 	
 	DefaultHealth = 100;
 
-	SetIsReplicated(true);
+	SetIsReplicated(true);  // Components use this instead of SetReplicates(true);
 }
 
 
