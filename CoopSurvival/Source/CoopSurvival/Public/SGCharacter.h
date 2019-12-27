@@ -60,7 +60,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Setup")
 	USGHealthComponent* HealthComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category="Setup")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category="Setup")
 	bool bHasDied;																// Used by the animation blueprint graph, and also to ensure we don't play effects twice. 
 
 	UFUNCTION() // REQUIRED FOR EVENT DELEGATES

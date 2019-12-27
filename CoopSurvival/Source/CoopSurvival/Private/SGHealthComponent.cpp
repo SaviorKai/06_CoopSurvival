@@ -3,6 +3,7 @@
 
 #include "SGHealthComponent.h"
 #include "GameFramework/Actor.h" // GetOwner()
+#include "Net/UnrealNetwork.h" // DOREPLIFETIME & GetLifetimeReplicatedProps
 
 // Sets default values for this component's properties
 USGHealthComponent::USGHealthComponent()
@@ -12,6 +13,8 @@ USGHealthComponent::USGHealthComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 	
 	DefaultHealth = 100;
+
+	SetIsReplicated(true);
 }
 
 
@@ -20,16 +23,19 @@ void USGHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AActor* MyOwner = GetOwner();
-	if (!MyOwner) { return; }
+	// [NETWORKING]: Only setup hook if we are the server running this code.
+	if (GetOwnerRole() == ROLE_Authority) // This is used for components, to get the role.
+	{
+		AActor* MyOwner = GetOwner();
+		if (!MyOwner) { return; }
 	
-	MyOwner->OnTakeAnyDamage.AddDynamic(this, &USGHealthComponent::HandleTakeAnyDamage);
-	
-	Health = DefaultHealth;
+		MyOwner->OnTakeAnyDamage.AddDynamic(this, &USGHealthComponent::HandleTakeAnyDamage);
+	}
 
-	
+	Health = DefaultHealth;
 }
 
+/// NOTE: This is only setup on the server, which means this won't run on any client.
 void USGHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Damage <= 0.0f)
@@ -43,3 +49,10 @@ void USGHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage,
 }
 
 
+// //[NETWORKING] Networking Replication Rules
+void USGHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USGHealthComponent, Health);       // Example: DOREPLIFETIME(AIGuard, GuardState);
+}

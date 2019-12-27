@@ -25,7 +25,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Setup")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Setup")
 	float Health;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
@@ -34,6 +34,7 @@ protected:
 	UFUNCTION()	// ALWAYS USE WITH DELEGATES
 	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 	
-
+	//[NETWORKING] Network Replication Rules Function (Not required, but Added here for code readability.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 		
 };

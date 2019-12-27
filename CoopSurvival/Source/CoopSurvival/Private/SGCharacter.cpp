@@ -162,7 +162,7 @@ FVector ASGCharacter::GetPawnViewLocation() const
 
 void ASGCharacter::HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Health <= 0.0f && !bHasDied)
+	if (Health <= 0.0f && !bHasDied) // Note: No need to set the ROLE_Authority check here, since this is already happening on the server only due to the health component hook that's only set to run on server.
 	{
 		// Die!
 		bHasDied = true;
@@ -181,5 +181,6 @@ void ASGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ASGCharacter, CurrentWeapon);       // Example: DOREPLIFETIME(AIGuard, GuardState);
+	DOREPLIFETIME(ASGCharacter, CurrentWeapon);			
+	DOREPLIFETIME(ASGCharacter, bHasDied);				
 }
