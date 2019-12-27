@@ -37,6 +37,10 @@ ASGWeapon::ASGWeapon()
 
 	SetReplicates(true);
 
+	/// [NETWORKING]: Ensuring the tick rate of this actor is not changed by the engine.
+	NetUpdateFrequency = 66.0f;
+	MinNetUpdateFrequency = 33.0f;
+
 }
 
 
@@ -78,6 +82,9 @@ void ASGWeapon::Fire()
 	FVector EndLocation = EyeLocation + (EyeRotation.Vector() * 10000);			// No need to update this magic number, it should be far enough to hit something.
 	FVector FinalHitLocation = EndLocation;										// This is set here, and updated depending on if we hit something.
 
+	// Set Default Hit SurfaceType Var
+	EPhysicalSurface HitSurfaceType = EPhysicalSurface::SurfaceType_Default;
+
 	// Set Collision Parameters for the trace
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(MyOwner);			// Ignore our Owner character
@@ -103,7 +110,7 @@ void ASGWeapon::Fire()
 		AActor* HitActor = Hit.GetActor();
 		if (!HitActor) { return; }													// Pointer Protection
 
-		EPhysicalSurface HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());  // Used Get() here, because its a weak object pointer and we want to get the object.
+		HitSurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());  // Used Get() here, because its a weak object pointer and we want to get the object.
 
 		float DamageToApply = BaseDamage;
 		if (HitSurfaceType == SurfaceType2) //  if FleshCritical	
@@ -120,49 +127,28 @@ void ASGWeapon::Fire()
 			this,
 			DamageType
 		);
-
-		/// Play Particle Effect Based on Surface Hit (NOTE! Make sure QueryParams.bReturnPhysicalMaterial = true; for the linetrace hit)
-		UParticleSystem* SelectedEffect = nullptr;
-		
-		switch (HitSurfaceType)											// Check the HitSurfaceType and run code depending on its result
-		{
-		case SurfaceType1:	// FleshDefault								// SurfaceType1 is a var set in UE4 Project Editor. You can define this to something else if you want.
-			SelectedEffect = FleshHitEffect;
-			break;
-
-		case SurfaceType2: // FleshCritical								// SurfaceType2 is a var set in UE4 Project Editor (Surface Types)
-			SelectedEffect = FleshCritEffect;
-			break;
-
-		default:
-			SelectedEffect = DefaultHitEffect;							// If none of the above, use the default.
-			break;
-		}
-
-		if (SelectedEffect)												// Play Selected Effect
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
-		}
-
-		/// Play Particle Effects
-		PlayFireEffects(FinalHitLocation);
-		
-		/// [NETWORKING]
-		if (Role == ROLE_Authority)
-		{
-			HitScanTrace.TraceTo = FinalHitLocation;
-		}
-
-		/// Set Last Fire Time for Weapon cool down
-		LastFireTime = GetWorld()->TimeSeconds;
-
-		/// DEBUG CODE ///
-		if (DebugWeaponDrawing > 0)
-		{
-			DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
-		}
-
 	}
+
+	/// Play Particle Effects
+	PlayFireEffects(FinalHitLocation);
+	PlayImpactEffects(HitSurfaceType, FinalHitLocation);
+		
+	/// [NETWORKING]: If you are the server running this code:
+	if (Role == ROLE_Authority)
+	{
+		HitScanTrace.TraceTo = FinalHitLocation;
+		HitScanTrace.SurfaceType = HitSurfaceType;
+	}
+
+	/// Set Last Fire Time for Weapon cool down
+	LastFireTime = GetWorld()->TimeSeconds;
+
+	/// DEBUG CODE ///
+	if (DebugWeaponDrawing > 0)
+	{
+		DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
+	}
+
 }
 
 void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
@@ -201,6 +187,37 @@ void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
 
 }
 
+void ASGWeapon::PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint)
+{
+	/// Play Particle Effect Based on Surface Hit (NOTE! Make sure QueryParams.bReturnPhysicalMaterial = true; for the linetrace hit)
+	UParticleSystem* SelectedEffect = nullptr;
+
+	switch (SurfaceType)											// Check the HitSurfaceType and run code depending on its result
+	{
+	case SurfaceType1:	// FleshDefault								// SurfaceType1 is a var set in UE4 Project Editor. You can define this to something else if you want.
+		SelectedEffect = FleshHitEffect;
+		break;
+
+	case SurfaceType2: // FleshCritical								// SurfaceType2 is a var set in UE4 Project Editor (Surface Types)
+		SelectedEffect = FleshCritEffect;
+		break;
+
+	default:
+		SelectedEffect = DefaultHitEffect;							// If none of the above, use the default.
+		break;
+	}
+
+	if (SelectedEffect)												// Play Selected Effect
+	{
+		FVector MuzzleLocation = GunMeshComponent->GetSocketLocation(MuzzleSocketName);
+		
+		FVector ShotDirection = ImpactPoint - MuzzleLocation;
+		ShotDirection.Normalize();
+		
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
+	}
+}
+
 // [NETWORKING]
 void ASGWeapon::ServerFire_Implementation()
 {
@@ -217,6 +234,7 @@ void ASGWeapon::OnRep_HitScanTrace()
 {
 	/// Play Particle Effects
 	PlayFireEffects(HitScanTrace.TraceTo);
+	PlayImpactEffects(HitScanTrace.SurfaceType, HitScanTrace.TraceTo);
 }
 
 // //[NETWORKING] Networking Replication Rules

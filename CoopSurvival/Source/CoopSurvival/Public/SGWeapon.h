@@ -20,7 +20,7 @@ struct  FHitScanTrace
 public:
 
 	UPROPERTY()
-	FVector_NetQuantize TraceFrom;
+	TEnumAsByte<EPhysicalSurface> SurfaceType; ///NOTE: We have to use TEnumAsByte for it to work in this struct and for it to replicate
 	
 	UPROPERTY()
 	FVector_NetQuantize TraceTo;
@@ -44,6 +44,8 @@ public:
 
 protected:
 	virtual void PlayFireEffects(FVector FinalHitLocation);
+	
+	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
 	virtual void Fire();
 
