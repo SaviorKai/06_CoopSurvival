@@ -48,7 +48,7 @@ void ASGCharacter::BeginPlay()
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASGCharacter::HandleOnHealthChanged);
 	
 	/// Spawn Weapon
-	if (Role == ROLE_Authority)  // [ NETWORKING ] : Ensures this is only run on server.
+	if (Role == ROLE_Authority)  // [NETWORKING] : Ensures this is only run on server.
 	{
 		if (!StarterWeaponClass) { return; }				//Pointer protection
 		FActorSpawnParameters SpawnParams;
@@ -176,7 +176,7 @@ void ASGCharacter::HandleOnHealthChanged(USGHealthComponent* HealthComp, float H
 }
 
 
-// Networking Replication Rules
+// //[NETWORKING] Networking Replication Rules
 void ASGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

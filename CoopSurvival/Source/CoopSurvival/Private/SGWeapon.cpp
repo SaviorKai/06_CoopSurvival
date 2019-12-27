@@ -11,6 +11,7 @@
 #include "Camera/CameraShake.h" // UCameraShake
 #include "PhysicalMaterials/PhysicalMaterial.h" // UPhysicalMaterial
 #include "TimerManager.h" // Timers
+#include "Net/UnrealNetwork.h" // DOREPLIFETIME & GetLifetimeReplicatedProps
 
 /// Console Command for DebugDrawing on Weapons
 static int32 DebugWeaponDrawing = 0;
@@ -142,22 +143,27 @@ void ASGWeapon::Fire()
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}
+
+		/// Play Particle Effects
+		PlayFireEffects(FinalHitLocation);
+		
+		/// [NETWORKING]
+		if (Role == ROLE_Authority)
+		{
+			HitScanTrace.TraceTo = FinalHitLocation;
+		}
+
+		/// Set Last Fire Time for Weapon cool down
+		LastFireTime = GetWorld()->TimeSeconds;
+
+		/// DEBUG CODE ///
+		if (DebugWeaponDrawing > 0)
+		{
+			DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
+		}
+
 	}
-
-	/// Play Particle Effects
-	PlayFireEffects(FinalHitLocation);
-
-	/// Set Last Fire Time for Weapon cool down
-	LastFireTime = GetWorld()->TimeSeconds;
-
-	/// DEBUG CODE ///
-	if (DebugWeaponDrawing > 0)
-	{
-		DrawDebugLine(GetWorld(), EyeLocation, EndLocation, FColor::White, false, 1.0f, 0, 1.0f);
-	}
-
 }
-
 
 void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
 {
@@ -195,7 +201,7 @@ void ASGWeapon::PlayFireEffects(FVector FinalHitLocation)
 
 }
 
-
+// [NETWORKING]
 void ASGWeapon::ServerFire_Implementation()
 {
 	Fire();
@@ -204,4 +210,19 @@ void ASGWeapon::ServerFire_Implementation()
 bool ASGWeapon::ServerFire_Validate()
 {
 	return true;
+}
+
+
+void ASGWeapon::OnRep_HitScanTrace()
+{
+	/// Play Particle Effects
+	PlayFireEffects(HitScanTrace.TraceTo);
+}
+
+// //[NETWORKING] Networking Replication Rules
+void ASGWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASGWeapon, HitScanTrace, COND_SkipOwner);       // Example: DOREPLIFETIME(AIGuard, GuardState);
 }

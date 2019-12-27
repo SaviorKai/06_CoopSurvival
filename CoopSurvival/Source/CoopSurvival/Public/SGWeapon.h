@@ -11,6 +11,22 @@ class UDamageType;
 class UParticleSystem;
 class UCameraShake;
 
+// Contains information of a single hitscan weapon linetrace.
+USTRUCT()
+struct  FHitScanTrace
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+	FVector_NetQuantize TraceFrom;
+	
+	UPROPERTY()
+	FVector_NetQuantize TraceTo;
+};
+
+
 UCLASS()
 class COOPSURVIVAL_API ASGWeapon : public AActor
 {
@@ -31,7 +47,7 @@ protected:
 
 	virtual void Fire();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation) //[NETWORKING]
 	void ServerFire();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
@@ -72,7 +88,16 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")									// NOTE: This is set in the blueprint editor (and we made it a dropdown)
 	TSubclassOf<UCameraShake> FireCamShakeClass;
+	
+	
+	/// [NETWORKING]
+	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	FHitScanTrace HitScanTrace;
+	
+	UFUNCTION()
+	void OnRep_HitScanTrace();
 
-
-
+	//[NETWORKING] Network Replication Rules Function (Not required, but Added here for code readability.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 };
