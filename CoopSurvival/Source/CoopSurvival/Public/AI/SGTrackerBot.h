@@ -22,6 +22,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category="Components")
 	UStaticMeshComponent* MyMeshComp;
 
+	FVector GetNextPathPoint();
+
 
 public:	
 	// Called every frame
