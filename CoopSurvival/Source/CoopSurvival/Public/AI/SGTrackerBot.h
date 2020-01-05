@@ -24,6 +24,17 @@ protected:
 
 	FVector GetNextPathPoint();
 
+	FVector NextPathPoint;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Setup")
+	float MovementForce = 1000;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float FollowDistance = 100;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	bool bUseVelocityChange;
+
 
 public:	
 	// Called every frame

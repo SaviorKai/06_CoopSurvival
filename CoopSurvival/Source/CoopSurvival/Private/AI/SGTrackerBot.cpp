@@ -19,7 +19,10 @@ ASGTrackerBot::ASGTrackerBot()
 
 	MyMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MyMeshComp->SetCanEverAffectNavigation(false);
+	MyMeshComp->SetSimulatePhysics(true);
 	SetRootComponent(MyMeshComp);
+
+	bUseVelocityChange = false;
 	
 
 }
@@ -29,8 +32,30 @@ void ASGTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetNextPathPoint();
+	NextPathPoint = GetNextPathPoint();
 	
+}
+
+// Called every frame
+void ASGTrackerBot::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();               // FVector::Size() allows you to take the number and convert it into magnitude.
+	
+
+	if (DistanceToTarget > FollowDistance)								// .Equals() checks a vector with tolerance.
+	{
+		///Keep moving to NextPathPoint
+		FVector ForceDirection = NextPathPoint - GetActorLocation();
+		ForceDirection.Normalize();
+
+		MyMeshComp->AddForce(ForceDirection * MovementForce, NAME_None, bUseVelocityChange);
+	}
+	else
+	{
+		NextPathPoint = GetNextPathPoint();
+	}
 }
 
 FVector ASGTrackerBot::GetNextPathPoint()
@@ -44,8 +69,10 @@ FVector ASGTrackerBot::GetNextPathPoint()
 		TargetActor
 	);
 
-	if (NavPath->PathPoints.Num() > 1)
+	if (NavPath->PathPoints.Num() > 1) 
 	{
+		/// DEBUGDRAWING  /// TODO: Rework this method, its CPU intensive. Turn on Debug Drawing below to see what I mean here.
+		/*
 		for (auto i : NavPath->PathPoints)
 		{
 			DrawDebugSphere(
@@ -56,21 +83,12 @@ FVector ASGTrackerBot::GetNextPathPoint()
 				FColor(255, 0, 0),
 				false,
 				200.0f
-			);
-
-			UE_LOG(LogTemp, Warning, TEXT("PathPoint Drawn"));
-		}
+			); 
+		}   
+		*/
 
 		return NavPath->PathPoints[1];
 	}
 	//Failed to find point
 	return GetActorLocation();
 }
-
-// Called every frame
-void ASGTrackerBot::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
