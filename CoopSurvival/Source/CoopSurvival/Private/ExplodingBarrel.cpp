@@ -61,6 +61,8 @@ void AExplodingBarrel::HandleOnHealthChanged(USGHealthComponent* HealthComp, flo
 
 void AExplodingBarrel::PlayExplodeEffects()
 {
+	// TODO: Add Radial Damage on explode
+
 	/// Add forces if Server (Note: These are only done server side, since movement is replicated.
 	if (ROLE_Authority)
 	{
@@ -70,6 +72,7 @@ void AExplodingBarrel::PlayExplodeEffects()
 
 		//RadialExplosionForce
 		RadialForceComponent->FireImpulse();
+
 	}
 
 	//Change Material

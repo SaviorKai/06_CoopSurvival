@@ -7,6 +7,7 @@
 #include "SGTrackerBot.generated.h"
 
 class USGHealthComponent;
+class UParticleSystem;
 
 
 UCLASS()
@@ -33,7 +34,20 @@ protected:
 
 	FVector GetNextPathPoint();
 
+	void SelfDestruct();
+
+	UPROPERTY(EditDefaultsOnly, Category="Setup")
+	UParticleSystem* ExplosionEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float ExplodeDamage = 40;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float ExplodeRadius = 200;
+
 	FVector NextPathPoint;
+
+	bool bHasDied = false;
 
 	UMaterialInstanceDynamic* MaterialInstance; // DynamicMaterrial to Pulse on Damage
 	

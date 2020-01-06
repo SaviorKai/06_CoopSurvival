@@ -97,17 +97,18 @@ FVector ASGTrackerBot::GetNextPathPoint()
 	return GetActorLocation();
 }
 
-
 void ASGTrackerBot::HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	// Explode on Hitpoints on 0
+	/// SelfDestruct on Hitpoints = 0
+	if (Health <= 0.0f && bHasDied == false)
+	{
+		SelfDestruct();
+	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("%s 's Health is %f"), *GetName(), Health);
-	
-	// Pulse Material on hit
+	/// Pulse Material on hit
 	if (MaterialInstance == nullptr)
 	{
-		// This creates a reference to the material?
+		// This creates a reference to the material
 		MaterialInstance = MyMeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MyMeshComp->GetMaterial(0));
 	}
 
@@ -116,6 +117,32 @@ void ASGTrackerBot::HandleOnHealthChanged(USGHealthComponent* HealthComp, float 
 		MaterialInstance->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds); //This is the paramater we created in the material editor.
 	}
 	
+}
 
+void ASGTrackerBot::SelfDestruct()
+{
+	bHasDied = true;
+	
+	// Spawn FX Emitter
+	if (ExplosionEffect)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+	}
 
+	// Apply AOE Damage
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+	UGameplayStatics::ApplyRadialDamage(
+		GetWorld(),
+		ExplodeDamage,
+		GetActorLocation(), 
+		ExplodeRadius, 
+		nullptr, 
+		IgnoredActors,   // NOTE: You can also use this, if you don't want to create a filter: TArray<AActor*>()
+		this, 
+		GetInstigatorController(), 
+		true);
+
+	//Destroy Actor
+	Destroy();
 }
