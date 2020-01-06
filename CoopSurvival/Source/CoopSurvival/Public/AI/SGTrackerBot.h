@@ -56,7 +56,16 @@ protected:
 	float FollowDistance = 100;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float SelfDamageInterval = 25.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	bool bUseVelocityChange;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	USoundBase* DeathSound;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	USoundBase* SelfDestructNoticeSound;
 
 	FVector NextPathPoint;
 

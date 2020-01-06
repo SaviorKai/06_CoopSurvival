@@ -156,7 +156,11 @@ void ASGTrackerBot::SelfDestruct()
 		GetInstigatorController(), 
 		true);
 
-	//Destroy Actor
+	/// Death
+	if (DeathSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
+	}
 	Destroy();
 }
 
@@ -168,10 +172,15 @@ void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 	{
 		if (!bStartedSelfDestruct)
 		{
-			//Start Self destruct Sequence
+			//Start Self destruct Sequence Damage
 			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASGTrackerBot::DamageSelf, 0.5f, true, 0.0f);
 		
 			bStartedSelfDestruct = true;
+
+			if (SelfDestructNoticeSound)
+			{
+				UGameplayStatics::SpawnSoundAttached(SelfDestructNoticeSound, MyMeshComp, NAME_None);
+			}
 		}
 	}
 }
@@ -179,5 +188,5 @@ void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void ASGTrackerBot::DamageSelf()
 {
-	UGameplayStatics::ApplyDamage(this, 25, GetInstigatorController(), this, nullptr);
+	UGameplayStatics::ApplyDamage(this, SelfDamageInterval, GetInstigatorController(), this, nullptr);
 }
