@@ -73,6 +73,8 @@ void ASGTrackerBot::Tick(float DeltaTime)
 	{
 		NextPathPoint = GetNextPathPoint();
 	}
+
+	/// TODO: Move the Rolling sound from Blueprints to C++? 
 }
 
 FVector ASGTrackerBot::GetNextPathPoint()
