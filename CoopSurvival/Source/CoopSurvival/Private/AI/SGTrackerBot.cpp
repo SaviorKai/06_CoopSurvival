@@ -11,6 +11,9 @@
 #include "GameFramework/Character.h"
 #include "SGHealthComponent.h" //USGHealthComponent
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Components/SphereComponent.h"
+#include "SGCharacter.h"
+#include "TimerManager.h"
 
 // Sets default values
 ASGTrackerBot::ASGTrackerBot()
@@ -26,6 +29,13 @@ ASGTrackerBot::ASGTrackerBot()
 	MyHealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("MyHealthComp"));
 	MyHealthComponent->OnHealthChanged.AddDynamic(this, &ASGTrackerBot::HandleOnHealthChanged);
 
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	SphereComponent->SetSphereRadius(200);
+	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);				// Important for performance enhancement
+	SphereComponent->SetCollisionResponseToAllChannels(ECR_Ignore);					// Important for performance enhancement
+	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);			// Important for performance enhancement
+	SphereComponent->SetupAttachment(RootComponent);
+
 	bUseVelocityChange = false;
 	
 
@@ -37,8 +47,11 @@ void ASGTrackerBot::BeginPlay()
 	Super::BeginPlay();
 
 	NextPathPoint = GetNextPathPoint();
+
+
 	
 }
+
 
 // Called every frame
 void ASGTrackerBot::Tick(float DeltaTime)
@@ -145,4 +158,26 @@ void ASGTrackerBot::SelfDestruct()
 
 	//Destroy Actor
 	Destroy();
+}
+
+void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	
+	// Check if the overlapping actor is a character
+	if (Cast<ASGCharacter>(OtherActor)) // If the cast suceeds, its a character!
+	{
+		if (!bStartedSelfDestruct)
+		{
+			//Start Self destruct Sequence
+			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASGTrackerBot::DamageSelf, 0.5f, true, 0.0f);
+		
+			bStartedSelfDestruct = true;
+		}
+	}
+}
+
+
+void ASGTrackerBot::DamageSelf()
+{
+	UGameplayStatics::ApplyDamage(this, 25, GetInstigatorController(), this, nullptr);
 }
