@@ -35,7 +35,7 @@ void USGHealthComponent::BeginPlay()
 	Health = DefaultHealth;
 }
 
-/// NOTE: This is only setup on the server, which means this won't run on any client.
+/// NOTE: This is only setup on the server (in BeginPlay()), which means this won't run on any client.
 void USGHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Damage <= 0.0f)

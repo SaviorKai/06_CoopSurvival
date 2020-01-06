@@ -6,6 +6,9 @@
 #include "GameFramework/Pawn.h"
 #include "SGTrackerBot.generated.h"
 
+class USGHealthComponent;
+
+
 UCLASS()
 class COOPSURVIVAL_API ASGTrackerBot : public APawn
 {
@@ -21,6 +24,12 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category="Components")
 	UStaticMeshComponent* MyMeshComp;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	USGHealthComponent* MyHealthComponent;
+	
+	UFUNCTION()
+	void HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	FVector GetNextPathPoint();
 

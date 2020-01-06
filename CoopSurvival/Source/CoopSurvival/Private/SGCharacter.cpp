@@ -30,7 +30,7 @@ ASGCharacter::ASGCharacter()
 	CameraComponent->SetupAttachment(SpringArm);
 
 	/// Create Health Component
-	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));			// Doesn't need attachment, since it's a ActorComponent (not scene component)
+	MyHealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));			// Doesn't need attachment, since it's a ActorComponent (not scene component)
 
 	/// Setup Weapon Socket
 	WeaponAttachSocketName = "WeaponSocket";
@@ -45,7 +45,7 @@ void ASGCharacter::BeginPlay()
 	DefaultFOV = CameraComponent->FieldOfView;			// Gets the current Field of view, and stores it as the default. This is important if the player wants to change it or if you want to change it.
 	
 	/// OnHealthChanged Delegate
-	HealthComponent->OnHealthChanged.AddDynamic(this, &ASGCharacter::HandleOnHealthChanged);
+	MyHealthComponent->OnHealthChanged.AddDynamic(this, &ASGCharacter::HandleOnHealthChanged);
 	
 	/// Spawn Weapon
 	if (Role == ROLE_Authority)  // [NETWORKING] : Ensures this is only run on server.

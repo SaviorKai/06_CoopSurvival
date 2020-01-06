@@ -28,7 +28,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Setup")
-	USGHealthComponent* HealthComponent;
+	USGHealthComponent* MyHealthComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Setup")
 	UStaticMeshComponent* MeshComponent;

@@ -24,7 +24,7 @@ AExplodingBarrel::AExplodingBarrel()
 	RadialForceComponent->bImpulseVelChange = true;
 	RadialForceComponent->ForceStrength = ExplosionForce;
 	
-	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("Health_Component"));			// Doesn't need attachment, since it's a ActorComponent (not scene component)
+	MyHealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("Health_Component"));			// Doesn't need attachment, since it's a ActorComponent (not scene component)
 	
 	SetReplicates(true);
 	SetReplicateMovement(true);
@@ -36,7 +36,7 @@ void AExplodingBarrel::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	HealthComponent->OnHealthChanged.AddDynamic(this, &AExplodingBarrel::HandleOnHealthChanged);
+	MyHealthComponent->OnHealthChanged.AddDynamic(this, &AExplodingBarrel::HandleOnHealthChanged);
 	RadialForceComponent->ForceStrength = ExplosionForce;
 }
 

@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h" //UGameplayStatics
 #include "DrawDebugHelpers.h" // DrawDebugSphere
 #include "GameFramework/Character.h"
+#include "SGHealthComponent.h" //USGHealthComponent
 
 
 // Sets default values
@@ -21,6 +22,9 @@ ASGTrackerBot::ASGTrackerBot()
 	MyMeshComp->SetCanEverAffectNavigation(false);
 	MyMeshComp->SetSimulatePhysics(true);
 	SetRootComponent(MyMeshComp);
+
+	MyHealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("MyHealthComp"));
+	MyHealthComponent->OnHealthChanged.AddDynamic(this, &ASGTrackerBot::HandleOnHealthChanged);
 
 	bUseVelocityChange = false;
 	
@@ -91,4 +95,14 @@ FVector ASGTrackerBot::GetNextPathPoint()
 	}
 	//Failed to find point
 	return GetActorLocation();
+}
+
+
+void ASGTrackerBot::HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	// Explode on Hitpoints on 0
+	
+	UE_LOG(LogTemp, Warning, TEXT("%s 's Health is %f"), *GetName(), Health);
+	
+	// TODO: Pulse Material on hit
 }
