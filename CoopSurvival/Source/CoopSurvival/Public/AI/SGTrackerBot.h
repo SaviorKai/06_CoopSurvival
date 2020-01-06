@@ -34,6 +34,8 @@ protected:
 	FVector GetNextPathPoint();
 
 	FVector NextPathPoint;
+
+	UMaterialInstanceDynamic* MaterialInstance; // DynamicMaterrial to Pulse on Damage
 	
 	UPROPERTY(EditDefaultsOnly, Category="Setup")
 	float MovementForce = 1000;

@@ -10,7 +10,7 @@
 #include "DrawDebugHelpers.h" // DrawDebugSphere
 #include "GameFramework/Character.h"
 #include "SGHealthComponent.h" //USGHealthComponent
-
+#include "Materials/MaterialInstanceDynamic.h"
 
 // Sets default values
 ASGTrackerBot::ASGTrackerBot()
@@ -104,5 +104,18 @@ void ASGTrackerBot::HandleOnHealthChanged(USGHealthComponent* HealthComp, float 
 	
 	UE_LOG(LogTemp, Warning, TEXT("%s 's Health is %f"), *GetName(), Health);
 	
-	// TODO: Pulse Material on hit
+	// Pulse Material on hit
+	if (MaterialInstance == nullptr)
+	{
+		// This creates a reference to the material?
+		MaterialInstance = MyMeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MyMeshComp->GetMaterial(0));
+	}
+
+	if (MaterialInstance)
+	{
+		MaterialInstance->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds); //This is the paramater we created in the material editor.
+	}
+	
+
+
 }
