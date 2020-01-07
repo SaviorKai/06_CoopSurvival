@@ -198,6 +198,8 @@ void ASGTrackerBot::SelfDestruct()
 
 void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
+	Super::NotifyActorBeginOverlap(OtherActor);
+	
 	// Check if the overlapping actor is a character
 	if (!bStartedSelfDestruct && !bHasDied)
 	{
