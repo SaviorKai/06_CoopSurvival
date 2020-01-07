@@ -36,6 +36,13 @@ ASGTrackerBot::ASGTrackerBot()
 	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);			// Important for performance enhancement
 	SphereComponent->SetupAttachment(RootComponent);
 
+	AllySenseSphere = CreateDefaultSubobject<USphereComponent>(TEXT("AllySenseSphere"));
+	AllySenseSphere->SetSphereRadius(300);
+	AllySenseSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);				// Important for performance enhancement
+	AllySenseSphere->SetCollisionResponseToAllChannels(ECR_Ignore);					// Important for performance enhancement
+	AllySenseSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);			// Important for performance enhancement
+	AllySenseSphere->SetupAttachment(RootComponent);
+
 	bUseVelocityChange = false;
 
 	//SetReplicateMovement(true);
@@ -46,6 +53,9 @@ ASGTrackerBot::ASGTrackerBot()
 void ASGTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Start Power Level Timer
+	GetWorldTimerManager().SetTimer(TimerHandle_SetPowerLevel, this, &ASGTrackerBot::SetPowerLevel, 1.0f, true, 0.0f);
 
 	/// [NETWORKING]: Run Gettig next path point on server only.
 	if (Role == ROLE_Authority)
@@ -59,6 +69,8 @@ void ASGTrackerBot::BeginPlay()
 void ASGTrackerBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	
 
 	/// [NETWORKING]: Run Movement Code on Server Only
 	if (Role == ROLE_Authority && bHasDied == false)
@@ -94,7 +106,7 @@ FVector ASGTrackerBot::GetNextPathPoint()
 		TargetActor
 	);
 
-	if (NavPath->PathPoints.Num() > 1) 
+	if (NavPath && NavPath->PathPoints.Num() > 1) 
 	{
 		/// DEBUGDRAWING  /// TODO: Rework this method, its CPU intensive. Turn on Debug Drawing below to see what I mean here.
 		/*
@@ -167,7 +179,7 @@ void ASGTrackerBot::SelfDestruct()
 		IgnoredActors.Add(this);
 		UGameplayStatics::ApplyRadialDamage(
 			GetWorld(),
-			ExplodeDamage,
+			ExplodeDamage * PowerLevel,
 			GetActorLocation(),
 			ExplodeRadius,
 			nullptr,
@@ -182,12 +194,15 @@ void ASGTrackerBot::SelfDestruct()
 	}
 }
 
+
+
 void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	// Check if the overlapping actor is a character
 	if (!bStartedSelfDestruct && !bHasDied)
 	{
-		if (Cast<ASGCharacter>(OtherActor)) // If the cast suceeds, its a character!
+		// Check if it's a character (player)
+		if (Cast<ASGCharacter>(OtherActor)) 
 		{
 			if (Role == ROLE_Authority)
 			{
@@ -205,8 +220,41 @@ void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 	}
 }
 
-
 void ASGTrackerBot::DamageSelf()
 {
 	UGameplayStatics::ApplyDamage(this, SelfDamageInterval, GetInstigatorController(), this, nullptr);
+}
+
+void ASGTrackerBot::SetPowerLevel()
+{
+	PowerLevel = 0;
+
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors);
+	
+	for (auto i : OverlappingActors)
+	{
+		if (Cast<ASGTrackerBot>(i))
+		{
+			PowerLevel = FMath::Clamp(PowerLevel + 1, 0, MaxPowerLevel);
+		}
+	}
+
+	/// PowerLevel Material Changes
+	if (MaterialInstance == nullptr)
+	{
+		// This creates a reference to the material
+		MaterialInstance = MyMeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MyMeshComp->GetMaterial(0));
+	}
+
+	if (MaterialInstance)
+	{
+		float PowerLevelAlpha = float(PowerLevel) / float(MaxPowerLevel); // NOTE: You have to turn both values into floats before doing the math, or else it will return 0, 1.
+
+		UE_LOG(LogTemp, Warning, TEXT("%s's PowerLevelAlpha is: %f"), *GetName(), PowerLevelAlpha);
+		
+		
+		MaterialInstance->SetScalarParameterValue("PowerrLevelAlpha", PowerLevelAlpha); //This is the paramater we created in the material editor.
+	}
+
 }

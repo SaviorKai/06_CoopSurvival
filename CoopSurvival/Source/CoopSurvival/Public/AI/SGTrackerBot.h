@@ -33,12 +33,17 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	USphereComponent* SphereComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	USphereComponent* AllySenseSphere;
+
 	UFUNCTION()
 	void HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	FVector GetNextPathPoint();
 
 	void SelfDestruct();
+
+	void SetPowerLevel();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	UParticleSystem* ExplosionEffect;
@@ -71,10 +76,13 @@ protected:
 
 	bool bHasDied = false;
 	bool bStartedSelfDestruct = false;
+	int32 PowerLevel = 0;
+	int32 MaxPowerLevel = 3;
 
 	UMaterialInstanceDynamic* MaterialInstance; // DynamicMaterrial to Pulse on Damage
 
 	FTimerHandle TimerHandle_SelfDamage;
+	FTimerHandle TimerHandle_SetPowerLevel;
 
 	void DamageSelf();
 
