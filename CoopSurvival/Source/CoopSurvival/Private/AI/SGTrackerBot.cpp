@@ -37,8 +37,9 @@ ASGTrackerBot::ASGTrackerBot()
 	SphereComponent->SetupAttachment(RootComponent);
 
 	bUseVelocityChange = false;
-	
 
+	//SetReplicateMovement(true);
+	//SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
@@ -46,10 +47,11 @@ void ASGTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
 
-	NextPathPoint = GetNextPathPoint();
-
-
-	
+	/// [NETWORKING]: Run Gettig next path point on server only.
+	if (Role == ROLE_Authority)
+	{
+		NextPathPoint = GetNextPathPoint();
+	}
 }
 
 
@@ -58,20 +60,24 @@ void ASGTrackerBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();               // FVector::Size() allows you to take the number and convert it into magnitude.
+	/// [NETWORKING]: Run Movement Code on Server Only
+	if (Role == ROLE_Authority && bHasDied == false)
+	{
+		///Movement
+		float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();               // FVector::Size() allows you to take the number and convert it into magnitude.
 	
+		if (DistanceToTarget > FollowDistance)								// .Equals() checks a vector with tolerance.
+		{
+			///Keep moving to NextPathPoint
+			FVector ForceDirection = NextPathPoint - GetActorLocation();
+			ForceDirection.Normalize();
 
-	if (DistanceToTarget > FollowDistance)								// .Equals() checks a vector with tolerance.
-	{
-		///Keep moving to NextPathPoint
-		FVector ForceDirection = NextPathPoint - GetActorLocation();
-		ForceDirection.Normalize();
-
-		MyMeshComp->AddForce(ForceDirection * MovementForce, NAME_None, bUseVelocityChange);
-	}
-	else
-	{
-		NextPathPoint = GetNextPathPoint();
+			MyMeshComp->AddForce(ForceDirection * MovementForce, NAME_None, bUseVelocityChange);
+		}
+		else
+		{
+			NextPathPoint = GetNextPathPoint();
+		}
 	}
 
 	/// TODO: Move the Rolling sound from Blueprints to C++? 
@@ -112,6 +118,7 @@ FVector ASGTrackerBot::GetNextPathPoint()
 	return GetActorLocation();
 }
 
+/// !! NOTE: The delegate is setup on the HEALTH COMPONENT for CLIENTS AND SERVER to run. We added an extra broadcast for clients. 
 void ASGTrackerBot::HandleOnHealthChanged(USGHealthComponent* HealthComp, float Health, float HealthDelta, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	/// SelfDestruct on Hitpoints = 0
@@ -144,38 +151,49 @@ void ASGTrackerBot::SelfDestruct()
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 	}
 
-	// Apply AOE Damage
-	TArray<AActor*> IgnoredActors;
-	IgnoredActors.Add(this);
-	UGameplayStatics::ApplyRadialDamage(
-		GetWorld(),
-		ExplodeDamage,
-		GetActorLocation(), 
-		ExplodeRadius, 
-		nullptr, 
-		IgnoredActors,   // NOTE: You can also use this, if you don't want to create a filter: TArray<AActor*>()
-		this, 
-		GetInstigatorController(), 
-		true);
-
 	/// Death
 	if (DeathSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
 	}
-	Destroy();
+
+	MyMeshComp->SetVisibility(false);
+	MyMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (Role == ROLE_Authority)
+	{
+		// Apply AOE Damage
+		TArray<AActor*> IgnoredActors;
+		IgnoredActors.Add(this);
+		UGameplayStatics::ApplyRadialDamage(
+			GetWorld(),
+			ExplodeDamage,
+			GetActorLocation(),
+			ExplodeRadius,
+			nullptr,
+			IgnoredActors,   // NOTE: You can also use this, if you don't want to create a filter: TArray<AActor*>()
+			this,
+			GetInstigatorController(),
+			true);
+
+		// Destroy Self
+		//Destroy();
+		SetLifeSpan(2.0f);
+	}
 }
 
 void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	
 	// Check if the overlapping actor is a character
-	if (Cast<ASGCharacter>(OtherActor)) // If the cast suceeds, its a character!
+	if (!bStartedSelfDestruct && !bHasDied)
 	{
-		if (!bStartedSelfDestruct)
+		if (Cast<ASGCharacter>(OtherActor)) // If the cast suceeds, its a character!
 		{
-			//Start Self destruct Sequence Damage
-			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASGTrackerBot::DamageSelf, 0.5f, true, 0.0f);
+			if (Role == ROLE_Authority)
+			{
+				//Start Self destruct Sequence Damage
+				GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASGTrackerBot::DamageSelf, 0.5f, true, 0.0f);
+			}
 		
 			bStartedSelfDestruct = true;
 

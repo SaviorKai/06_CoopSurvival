@@ -35,6 +35,13 @@ void USGHealthComponent::BeginPlay()
 	Health = DefaultHealth;
 }
 
+void USGHealthComponent::OnRep_Health(float OldHealth)  // NOTE: We can use the abbreviation 'Old' directly infront of the value, to get the value it was before it changed and was replicated.
+{
+	float Damage = Health - OldHealth;
+
+	OnHealthChanged.Broadcast(this, Health, Damage, nullptr, nullptr, nullptr);
+}
+
 /// NOTE: This is only setup on the server (in BeginPlay()), which means this won't run on any client.
 void USGHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {

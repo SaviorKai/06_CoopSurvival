@@ -67,14 +67,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	USoundBase* SelfDestructNoticeSound;
 
-	FVector NextPathPoint;
+	FVector NextPathPoint = FVector(0);
 
 	bool bHasDied = false;
 	bool bStartedSelfDestruct = false;
 
 	UMaterialInstanceDynamic* MaterialInstance; // DynamicMaterrial to Pulse on Damage
 
-	FTimerHandle   TimerHandle_SelfDamage;
+	FTimerHandle TimerHandle_SelfDamage;
 
 	void DamageSelf();
 
