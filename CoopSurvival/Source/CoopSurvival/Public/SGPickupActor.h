@@ -42,6 +42,8 @@ protected:
 
 	ASGPowerUp* PowerUpInstance;
 
+
+
 public:	
 
 	/// Overide this function so we can use it

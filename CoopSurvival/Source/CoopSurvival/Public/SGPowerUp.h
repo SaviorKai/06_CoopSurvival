@@ -34,6 +34,15 @@ protected:
 	UFUNCTION()
 	void OnTickPowerUp();
 
+	UPROPERTY(ReplicatedUsing = OnRep_PowerUpActive)    //NOTE: Don't add Categories to Replicated Using Functions.
+	bool bIsPowerUpActive;
+
+	UFUNCTION()
+	void OnRep_PowerUpActive();
+
+	//[NETWORKING] Network Replication Rules Function (Not required, but Added here for code readability.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:	
 
 	void ActivatePowerUp();
@@ -46,4 +55,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")		// REMEMBER: We don't define BlueprintImplementableEvent in C++! It's defined in BluePrints.
 	void OnExpired();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")		// REMEMBER: We don't define BlueprintImplementableEvent in C++! It's defined in BluePrints.
+	void OnPowerUpStateChanged(bool bNewIsActive);
 };

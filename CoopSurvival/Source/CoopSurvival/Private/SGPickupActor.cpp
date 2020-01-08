@@ -20,27 +20,35 @@ ASGPickupActor::ASGPickupActor()
 	DecalComp->DecalSize = FVector(64, 75, 75);
 
 	RespawnCooldown = 5.0f;
+
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
 void ASGPickupActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	RespawnPowerUp();
+	
+	if (Role == ROLE_Authority) // Spawn on server only
+	{
+		RespawnPowerUp();
+	}
 }
 
 void ASGPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (PowerUpInstance)
+	if (Role == ROLE_Authority)
 	{
-		PowerUpInstance->ActivatePowerUp();
-		PowerUpInstance = nullptr; //Reset the instance;
+		if (PowerUpInstance)
+		{
+			PowerUpInstance->ActivatePowerUp();
+			PowerUpInstance = nullptr; //Reset the instance;
 
-		//Set timer for respawn
-		GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASGPickupActor::RespawnPowerUp, RespawnCooldown);
+			//Set timer for respawn
+			GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASGPickupActor::RespawnPowerUp, RespawnCooldown);
+		}
 	}
 }
 
@@ -57,3 +65,4 @@ void ASGPickupActor::RespawnPowerUp()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	PowerUpInstance = GetWorld()->SpawnActor<ASGPowerUp>(PowerUp, GetTransform(), SpawnParams);
 }
+

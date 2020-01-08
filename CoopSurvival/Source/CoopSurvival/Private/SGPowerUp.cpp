@@ -3,12 +3,17 @@
 
 #include "SGPowerUp.h"
 #include "TimerManager.h"
+#include "Net/UnrealNetwork.h" // DOREPLIFETIME & GetLifetimeReplicatedProps
 
 // Sets default values
 ASGPowerUp::ASGPowerUp()
 {
 	PowerUpInterval = 0.0f;
 	TotalNumOfTicks = 0;
+
+	SetReplicates(true);
+
+	bIsPowerUpActive = false;
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +32,9 @@ void ASGPowerUp::OnTickPowerUp()
 	{
 		OnExpired();
 
+		bIsPowerUpActive = false;	// This is replicated_using, and thus it will run the replicated function on clients when required.
+		OnRep_PowerUpActive();		// Note that we manually call the function here, since it will not be REPLICATED TO SERVER, only to clients, since we're running from server.
+
 		GetWorldTimerManager().ClearTimer(TimerHandle_PowerUpTick);
 	}
 }
@@ -34,6 +42,9 @@ void ASGPowerUp::OnTickPowerUp()
 void ASGPowerUp::ActivatePowerUp()
 {
 	OnActivated();
+
+	bIsPowerUpActive = true;	// This is replicated_using, and thus it will run the replicated function on clients when required.
+	OnRep_PowerUpActive();		// Note that we manually call the function here, since it will not be REPLICATED TO SERVER, only to clients, since we're running from server.
 
 	if (PowerUpInterval > 0)
 	{
@@ -46,3 +57,17 @@ void ASGPowerUp::ActivatePowerUp()
 }
 
 
+void ASGPowerUp::OnRep_PowerUpActive()
+{
+	OnPowerUpStateChanged(bIsPowerUpActive);
+}
+
+
+// //[NETWORKING] Networking Replication Rules
+void ASGPowerUp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASGPowerUp, bIsPowerUpActive);
+
+}
