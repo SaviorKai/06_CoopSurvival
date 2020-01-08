@@ -38,12 +38,12 @@ public:
 
 	void ActivatePowerUp();
 
-	UFUNCTION(BlueprintCallable, Category = "PowerUps")
+	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")		// REMEMBER: We don't define BlueprintImplementableEvent in C++! It's defined in BluePrints.
 	void OnActivated();
 	
-	UFUNCTION(BlueprintCallable, Category = "PowerUps")
+	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")		// REMEMBER: We don't define BlueprintImplementableEvent in C++! It's defined in BluePrints.
 	void OnPowerUpTicked();
 
-	UFUNCTION(BlueprintCallable, Category = "PowerUps")
+	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")		// REMEMBER: We don't define BlueprintImplementableEvent in C++! It's defined in BluePrints.
 	void OnExpired();
 };

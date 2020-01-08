@@ -45,19 +45,4 @@ void ASGPowerUp::ActivatePowerUp()
 	}
 }
 
-void ASGPowerUp::OnActivated()
-{
-
-}
-
-void ASGPowerUp::OnPowerUpTicked()
-{
-
-}
-
-void ASGPowerUp::OnExpired()
-{
-
-}
-
 
