@@ -45,10 +45,10 @@ protected:
 
 public:	
 
-	void ActivatePowerUp();
+	void ActivatePowerUp(AActor* OtherActor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")		// REMEMBER: We don't define BlueprintImplementableEvent in C++! It's defined in BluePrints.
-	void OnActivated();
+	void OnActivated(AActor* OtherActor);
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")		// REMEMBER: We don't define BlueprintImplementableEvent in C++! It's defined in BluePrints.
 	void OnPowerUpTicked();

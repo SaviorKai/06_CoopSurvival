@@ -30,6 +30,8 @@ public:
 	// Override the UE4 GetPawnViewLocation() function, which is called by the GetActorEyesViewPoint() on Weapon.
 	virtual FVector GetPawnViewLocation() const override;
 
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -45,6 +47,9 @@ protected:
 	void EndZoom();
 	void StartFireWeapon();
 	void StopFireWeapon();
+
+	//  Movement Properties
+	//TODO: BUG: Build own Movement componenent and replicate speed properly for clients, since Speedboost is BUSTED on clients. Fix the silly Blueprint code suggested by lecure.
 
 	/// Weapon Properties
 	UPROPERTY(Replicated) //[NETWORKING]
@@ -86,6 +91,8 @@ protected:
 
 	//[NETWORKING] Network Replication Rules Function (Not required, but Added here for code readability.
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	
 };
 
 

@@ -6,6 +6,7 @@
 #include "Components/DecalComponent.h"
 #include "SGPowerUp.h"
 #include "TimerManager.h"
+#include "SGCharacter.h"
 
 // Sets default values
 ASGPickupActor::ASGPickupActor()
@@ -41,9 +42,12 @@ void ASGPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 
 	if (Role == ROLE_Authority)
 	{
+		// Check if its a Character
+		if (!Cast<ASGCharacter>(OtherActor)) { return; }
+
 		if (PowerUpInstance)
 		{
-			PowerUpInstance->ActivatePowerUp();
+			PowerUpInstance->ActivatePowerUp(OtherActor);
 			PowerUpInstance = nullptr; //Reset the instance;
 
 			//Set timer for respawn

@@ -39,9 +39,9 @@ void ASGPowerUp::OnTickPowerUp()
 	}
 }
 
-void ASGPowerUp::ActivatePowerUp()
+void ASGPowerUp::ActivatePowerUp(AActor* OtherActor)
 {
-	OnActivated();
+	OnActivated(OtherActor);
 
 	bIsPowerUpActive = true;	// This is replicated_using, and thus it will run the replicated function on clients when required.
 	OnRep_PowerUpActive();		// Note that we manually call the function here, since it will not be REPLICATED TO SERVER, only to clients, since we're running from server.

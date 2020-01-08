@@ -10,6 +10,7 @@
 #include "SGHealthComponent.h" // USGHealthComponent
 #include "Components/InputComponent.h" // UInputComponent
 #include "Net/UnrealNetwork.h" // DOREPLIFETIME & GetLifetimeReplicatedProps
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ASGCharacter::ASGCharacter()
@@ -77,7 +78,6 @@ void ASGCharacter::Tick(float DeltaTime)
 	float NewFOV = FMath::FInterpTo(CurrentFOV, TargetFOV, DeltaTime, ZoomInterpSpeed); // FOV this frame   // Interpolation! 
 	
 	CameraComponent->SetFieldOfView(NewFOV);
-
 }
 
 // Called to bind functionality to input
@@ -175,12 +175,11 @@ void ASGCharacter::HandleOnHealthChanged(USGHealthComponent* HealthComp, float H
 	}
 }
 
-
 // //[NETWORKING] Networking Replication Rules
 void ASGCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASGCharacter, CurrentWeapon);			
-	DOREPLIFETIME(ASGCharacter, bHasDied);				
+	DOREPLIFETIME(ASGCharacter, bHasDied);
 }
