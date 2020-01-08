@@ -17,7 +17,6 @@ USGHealthComponent::USGHealthComponent()
 	SetIsReplicated(true);  // Components use this instead of SetReplicates(true);
 }
 
-
 // Called when the game starts
 void USGHealthComponent::BeginPlay()
 {
@@ -62,4 +61,16 @@ void USGHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(USGHealthComponent, Health);       // Example: DOREPLIFETIME(AIGuard, GuardState);
+}
+
+void USGHealthComponent::Heal(float HealAmount)
+{
+	if (HealAmount <= 0 || Health <= 0.0f) { return; }
+
+	Health = FMath::Clamp(Health + HealAmount, 0.0f, DefaultHealth);
+
+	UE_LOG(LogTemp, Warning, TEXT("Healed + %f. Current HP = %f"), HealAmount, Health);
+
+	OnHealthChanged.Broadcast(this, Health, -HealAmount, nullptr, nullptr, nullptr);
+
 }

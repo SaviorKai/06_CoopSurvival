@@ -29,7 +29,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UDecalComponent* DecalComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PowerUps")
+	UPROPERTY(EditAnywhere, Category = "PowerUps")
 	TSubclassOf<ASGPowerUp> PowerUp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "PowerUps")

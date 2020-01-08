@@ -253,9 +253,6 @@ void ASGTrackerBot::SetPowerLevel()
 	{
 		float PowerLevelAlpha = float(PowerLevel) / float(MaxPowerLevel); // NOTE: You have to turn both values into floats before doing the math, or else it will return 0, 1.
 
-		UE_LOG(LogTemp, Warning, TEXT("%s's PowerLevelAlpha is: %f"), *GetName(), PowerLevelAlpha);
-		
-		
 		MaterialInstance->SetScalarParameterValue("PowerrLevelAlpha", PowerLevelAlpha); //This is the paramater we created in the material editor.
 	}
 
