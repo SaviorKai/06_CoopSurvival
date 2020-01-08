@@ -28,7 +28,6 @@ void ASGPowerUp::OnTickPowerUp()
 		OnExpired();
 
 		GetWorldTimerManager().ClearTimer(TimerHandle_PowerUpTick);
-
 	}
 }
 
@@ -38,11 +37,11 @@ void ASGPowerUp::ActivatePowerUp()
 
 	if (PowerUpInterval > 0)
 	{
-		GetWorldTimerManager().SetTimer(TimerHandle_PowerUpTick, this, &ASGPowerUp::OnTickPowerUp, PowerUpInterval, true, 0.0f);
+		GetWorldTimerManager().SetTimer(TimerHandle_PowerUpTick, this, &ASGPowerUp::OnTickPowerUp, PowerUpInterval, true);
 	}
 	else
 	{
-		//OnTickPowerUp(); // <--- do we really need this if first tick interval is 0.0f?
+		OnTickPowerUp();
 	}
 }
 
