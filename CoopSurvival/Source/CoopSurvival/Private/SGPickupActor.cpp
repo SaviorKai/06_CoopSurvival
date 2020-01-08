@@ -4,6 +4,8 @@
 #include "SGPickupActor.h"
 #include "Components/SphereComponent.h"
 #include "Components/DecalComponent.h"
+#include "SGPowerUp.h"
+#include "TimerManager.h"
 
 // Sets default values
 ASGPickupActor::ASGPickupActor()
@@ -22,13 +24,34 @@ ASGPickupActor::ASGPickupActor()
 void ASGPickupActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	RespawnPowerUp();
 }
 
 void ASGPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	// TODO: Grant Player Powerup if available.
+	if (PowerUpInstance)
+	{
+		PowerUpInstance->ActivatePowerUp();
+		PowerUpInstance = nullptr; //Reset the instance;
+
+		//Set timer for respawn
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASGPickupActor::RespawnPowerUp, RespawnCooldown);
+	}
 }
 
+void ASGPickupActor::RespawnPowerUp()
+{
+	if (!PowerUp) //Pointer Protection
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PowerUp class not set in blueprint for %s"), *GetName());
+		return;
+	}
+	
+	// Spawn PowerUp
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	PowerUpInstance = GetWorld()->SpawnActor<ASGPowerUp>(PowerUp, GetTransform(), SpawnParams);
+}

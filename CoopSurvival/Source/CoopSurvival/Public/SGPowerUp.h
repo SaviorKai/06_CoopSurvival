@@ -29,7 +29,7 @@ protected:
 
 	FTimerHandle TimerHandle_PowerUpTick;
 
-	int32 TicksProcessed;
+	int32 TicksProcessed = 0;
 
 	UFUNCTION()
 	void OnTickPowerUp();

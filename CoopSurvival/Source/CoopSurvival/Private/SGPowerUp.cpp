@@ -21,11 +21,10 @@ void ASGPowerUp::OnTickPowerUp()
 {
 	TicksProcessed++;  // Add 1 to TicksProcessed
 
-	OnPowerUpTicked(); // Run the blueprint function.
+	OnPowerUpTicked(); // Run the blueprint function for FX to be able to be attached.
 
 	if (TicksProcessed >= TotalNumOfTicks)
 	{
-		//Spawn Powerup? 
 		OnExpired();
 
 		GetWorldTimerManager().ClearTimer(TimerHandle_PowerUpTick);
@@ -35,6 +34,8 @@ void ASGPowerUp::OnTickPowerUp()
 
 void ASGPowerUp::ActivatePowerUp()
 {
+	OnActivated();
+
 	if (PowerUpInterval > 0)
 	{
 		GetWorldTimerManager().SetTimer(TimerHandle_PowerUpTick, this, &ASGPowerUp::OnTickPowerUp, PowerUpInterval, true, 0.0f);

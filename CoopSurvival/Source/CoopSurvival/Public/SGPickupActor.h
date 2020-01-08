@@ -8,6 +8,7 @@
 
 class USphereComponent;
 class UDecalComponent;
+class ASGPowerUp;
 
 UCLASS()
 class COOPSURVIVAL_API ASGPickupActor : public AActor
@@ -28,6 +29,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UDecalComponent* DecalComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "PowerUps")
+	TSubclassOf<ASGPowerUp> PowerUp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PowerUps")
+	float RespawnCooldown;
+
+	FTimerHandle TimerHandle_RespawnTimer;
+
+	UFUNCTION()
+	void RespawnPowerUp();
+
+	ASGPowerUp* PowerUpInstance;
 
 public:	
 
