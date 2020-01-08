@@ -18,6 +18,8 @@ ASGPickupActor::ASGPickupActor()
 	DecalComp->SetupAttachment(RootComponent);
 	DecalComp->SetRelativeRotation(FRotator(90, 0, 0));
 	DecalComp->DecalSize = FVector(64, 75, 75);
+
+	RespawnCooldown = 5.0f;
 }
 
 // Called when the game starts or when spawned
