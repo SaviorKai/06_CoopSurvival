@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "SGGameModeBase.generated.h"
 
+enum class EWaveState : uint8;  // This is how you forwad declare Enums.
+
 /**
  * 
  */
@@ -53,6 +55,8 @@ protected:
 
 	//Game Over 
 	void GameOver();
+
+	void SetWaveState(EWaveState NewState);
 
 public:
 

@@ -6,11 +6,15 @@
 #include "Engine/World.h"
 #include "SGHealthComponent.h"
 #include "SGTrackerBot.h"
+#include "SGGameStateBase.h"
 
 
 ASGGameModeBase::ASGGameModeBase()
 {
 	TimeBetweenWaves = 2.0f;
+
+	// Set default game state class
+	GameStateClass = ASGGameStateBase::StaticClass();
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 5.0f;
@@ -130,4 +134,13 @@ void ASGGameModeBase::GameOver()
 	// TODO: Finish up the match, present Game Over to players.
 
 	UE_LOG(LogTemp, Warning, TEXT("GAME OVER :("));
+}
+
+void ASGGameModeBase::SetWaveState(EWaveState NewState)
+{
+	ASGGameStateBase* GameState = GetGameState<ASGGameStateBase>();
+
+	if (!GameState) { return; }
+
+	GameState->WaveState = NewState;
 }
