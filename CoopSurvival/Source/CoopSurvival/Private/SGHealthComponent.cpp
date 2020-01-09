@@ -74,3 +74,8 @@ void USGHealthComponent::Heal(float HealAmount)
 	OnHealthChanged.Broadcast(this, Health, -HealAmount, nullptr, nullptr, nullptr);
 
 }
+
+float USGHealthComponent::GetHealth() const
+{
+	return Health;
+}

@@ -31,12 +31,13 @@ protected:
 	UFUNCTION()
 	void SpawnBotTimerElapsed();
 
-	UFUNCTION(BlueprintImplementableEvent, Category="Setup")
+	UFUNCTION(BlueprintImplementableEvent, Category="Setup")  //Actual Spawning is handled in BP, because we use EQS
 	void SpawnNewBot();
 
 	//Start Spawning Bots
 	void StartWave();
 	FTimerHandle TimerHandle_BotSpawner;
+	FTimerHandle TimerHandle_CheckWaveTimer;
 
 	//Stop Spawning Bots
 	void EndWave();
@@ -44,8 +45,11 @@ protected:
 	//Set timer for next start wave.
 	void PrepareForNextWave();
 
+	//Check if enemies are still alive before we can start next wave.
+	void CheckWaveState();
+
 public:
 
 	virtual void StartPlay() override;
-
+	virtual void Tick(float DeltaTime) override;
 };

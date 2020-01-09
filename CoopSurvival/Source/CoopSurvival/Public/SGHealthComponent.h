@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Setup)
 	void Heal(float HealAmount);
 
+	//HelperFunction
+	float GetHealth() const;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
