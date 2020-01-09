@@ -46,7 +46,13 @@ protected:
 	void PrepareForNextWave();
 
 	//Check if enemies are still alive before we can start next wave.
-	void CheckWaveState();
+	void CheckWaveState();\
+
+	//Check if players are still alive.
+	void CheckAnyPlayerAlive();
+
+	//Game Over 
+	void GameOver();
 
 public:
 

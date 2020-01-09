@@ -20,7 +20,7 @@ void ASGGameModeBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	UE_LOG(LogTemp,Warning,TEXT("GameModeBase C++ : This is just to show that you can override a tick function and make it tick on a different interval, like 5 seconds."))
+	CheckAnyPlayerAlive();
 }
 
 
@@ -93,4 +93,41 @@ void ASGGameModeBase::CheckWaveState()
 	
 	GetWorldTimerManager().ClearTimer(TimerHandle_CheckWaveTimer);
 	PrepareForNextWave();
+}
+
+void ASGGameModeBase::CheckAnyPlayerAlive()
+{
+	FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator();
+
+	for (It; It; ++It)
+	{
+		APlayerController* TempPlayerController = It->Get();
+		if (!TempPlayerController) { continue; }
+
+		APawn* TempPlayerPawn = TempPlayerController->GetPawn();
+		if (!TempPlayerPawn) { continue; }
+
+		USGHealthComponent* HealthComp = TempPlayerPawn->FindComponentByClass<USGHealthComponent>();
+		if (!HealthComp) { continue; }
+
+		if (HealthComp->GetHealth() > 0.0f)
+		{
+			return;	
+		}
+	}
+
+	// If it gets to this point, there are no players alive
+	GameOver();
+
+	
+	
+}
+
+void ASGGameModeBase::GameOver()
+{
+	EndWave();
+
+	// TODO: Finish up the match, present Game Over to players.
+
+	UE_LOG(LogTemp, Warning, TEXT("GAME OVER :("));
 }

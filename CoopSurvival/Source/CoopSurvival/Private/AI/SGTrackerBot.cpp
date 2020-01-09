@@ -170,6 +170,7 @@ void ASGTrackerBot::SelfDestruct()
 	}
 
 	MyMeshComp->SetVisibility(false);
+	MyMeshComp->SetSimulatePhysics(false);  // Remember that we have to set this first to avoid log errors, since the game will trigger if collisions are off but this is still on.
 	MyMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (Role == ROLE_Authority)
