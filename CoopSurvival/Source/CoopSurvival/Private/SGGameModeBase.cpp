@@ -29,7 +29,7 @@ void ASGGameModeBase::Tick(float DeltaTime)
 
 
 void ASGGameModeBase::StartWave()
-{
+{	
 	WaveCount++;
 
 	NumberOfBotsToSpawn = 2 * WaveCount;
@@ -37,6 +37,8 @@ void ASGGameModeBase::StartWave()
 	float BotSpawnRate = 1.0f;  //TODO: Update to editable var
 
 	GetWorldTimerManager().SetTimer(TimerHandle_BotSpawner, this, &ASGGameModeBase::SpawnBotTimerElapsed, BotSpawnRate, true, 0.0f);
+
+	SetWaveState(EWaveState::WaveInProgress);
 }
 
 void ASGGameModeBase::EndWave()
@@ -45,12 +47,15 @@ void ASGGameModeBase::EndWave()
 
 	GetWorldTimerManager().SetTimer(TimerHandle_CheckWaveTimer, this, &ASGGameModeBase::CheckWaveState, 3.0f, true, 0.0f);
 	
+	SetWaveState(EWaveState::WaitingToComplete);
 }
 
 void ASGGameModeBase::PrepareForNextWave()
 {
 	FTimerHandle TimerHandle_NextWavePrepTime;
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWavePrepTime, this, &ASGGameModeBase::StartWave, TimeBetweenWaves,false);
+
+	SetWaveState(EWaveState::WaitingToStart);
 }
 
 void ASGGameModeBase::StartPlay()
@@ -75,6 +80,7 @@ void ASGGameModeBase::SpawnBotTimerElapsed()
 	}
 }
 
+// Check if any enemies are alive
 void ASGGameModeBase::CheckWaveState()
 {
 	FConstPawnIterator Enemies = GetWorld()->GetPawnIterator(); //TODO: Review this as it may be deprecated in the future.
@@ -96,6 +102,9 @@ void ASGGameModeBase::CheckWaveState()
 	}
 	
 	GetWorldTimerManager().ClearTimer(TimerHandle_CheckWaveTimer);
+	
+	SetWaveState(EWaveState::WaveComplete);
+
 	PrepareForNextWave();
 }
 
@@ -121,7 +130,8 @@ void ASGGameModeBase::CheckAnyPlayerAlive()
 	}
 
 	// If it gets to this point, there are no players alive
-	GameOver();
+	GameOver(); // TODO: This isn't working correctly in Dedicated server mode (triggers before players join). Fix.
+
 
 	
 	
@@ -131,16 +141,17 @@ void ASGGameModeBase::GameOver()
 {
 	EndWave();
 
-	// TODO: Finish up the match, present Game Over to players.
+	SetWaveState(EWaveState::GameOver);
 
-	UE_LOG(LogTemp, Warning, TEXT("GAME OVER :("));
+	// TODO: Finish up the match, present Game Over to players.
 }
 
 void ASGGameModeBase::SetWaveState(EWaveState NewState)
 {
-	ASGGameStateBase* GameState = GetGameState<ASGGameStateBase>();
+	ASGGameStateBase* GameState = GetGameState<ASGGameStateBase>(); // Has a cast type built in
 
 	if (!GameState) { return; }
 
-	GameState->WaveState = NewState;
+	// Call the SetWaveState() on the Game State to modify it's value.
+	GameState->SetWaveState(NewState);
 }

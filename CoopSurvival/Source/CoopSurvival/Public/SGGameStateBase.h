@@ -33,11 +33,12 @@ protected:
 	//[NETWORKING] Network Replication Rules Function (Not required, but Added here for code readability.
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-public: 
-
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_WaveState, Category="Setup")
 	EWaveState WaveState;
 
+public: 
+
+	void SetWaveState(EWaveState NewState);
 
 
 };
