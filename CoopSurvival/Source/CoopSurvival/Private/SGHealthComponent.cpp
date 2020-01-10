@@ -4,6 +4,8 @@
 #include "SGHealthComponent.h"
 #include "GameFramework/Actor.h" // GetOwner()
 #include "Net/UnrealNetwork.h" // DOREPLIFETIME & GetLifetimeReplicatedProps
+#include "SGGameModeBase.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 USGHealthComponent::USGHealthComponent()
@@ -13,6 +15,8 @@ USGHealthComponent::USGHealthComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 	
 	DefaultHealth = 100;
+
+	bHasDied = false;
 
 	SetIsReplicated(true);  // Components use this instead of SetReplicates(true);
 }
@@ -44,14 +48,24 @@ void USGHealthComponent::OnRep_Health(float OldHealth)  // NOTE: We can use the 
 /// NOTE: This is only setup on the server (in BeginPlay()), which means this won't run on any client.
 void USGHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Damage <= 0.0f)
-	{
-		return;
-	}
+	if (bHasDied) { return; }
+	if (Damage <= 0.0f) { return; }
 
 	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
 
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
+
+	if (Health <= 0.0f)
+	{
+		bHasDied = true;
+
+		// Get the game mode via GetAuthGameMode(), which will only return a valid pointer when run as server.
+		ASGGameModeBase* MyGameMode = Cast<ASGGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (MyGameMode)
+		{
+			MyGameMode->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
+		}
+	}
 }
 
 

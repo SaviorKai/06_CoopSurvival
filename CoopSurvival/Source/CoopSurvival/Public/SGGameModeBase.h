@@ -8,6 +8,8 @@
 
 enum class EWaveState : uint8;  // This is how you forwad declare Enums.
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilledSignature, AActor*, VictimActor, AActor*, KillerActor, AController*, KillerController);
+
 /**
  * 
  */
@@ -62,4 +64,8 @@ public:
 
 	virtual void StartPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events") // Makes this event blueprint assignable when, so that we can register for it
+	FOnActorKilledSignature OnActorKilled;
 };
+

@@ -7,14 +7,16 @@
 #include "SGHealthComponent.h"
 #include "SGTrackerBot.h"
 #include "SGGameStateBase.h"
+#include "SGPlayerState.h"
 
 
 ASGGameModeBase::ASGGameModeBase()
 {
 	TimeBetweenWaves = 2.0f;
 
-	// Set default game state class
+	// Set default classes
 	GameStateClass = ASGGameStateBase::StaticClass();
+	PlayerStateClass = ASGPlayerState::StaticClass();
 
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 5.0f;
