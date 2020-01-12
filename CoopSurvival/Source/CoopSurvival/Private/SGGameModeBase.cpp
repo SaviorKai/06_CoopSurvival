@@ -58,6 +58,9 @@ void ASGGameModeBase::PrepareForNextWave()
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWavePrepTime, this, &ASGGameModeBase::StartWave, TimeBetweenWaves,false);
 
 	SetWaveState(EWaveState::WaitingToStart);
+
+	//Respawn Players
+	RespawnDeadPlayers();
 }
 
 void ASGGameModeBase::StartPlay()
@@ -156,4 +159,24 @@ void ASGGameModeBase::SetWaveState(EWaveState NewState)
 
 	// Call the SetWaveState() on the Game State to modify it's value.
 	GameState->SetWaveState(NewState);
+}
+
+void ASGGameModeBase::RespawnDeadPlayers()
+{
+	FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator();
+
+	for (It; It; ++It)
+	{
+		// Check if it's a player controller
+		APlayerController* TempPlayerController = It->Get();
+		if (!TempPlayerController) { continue; }
+
+		// Check the pawn for this player exists (Is it dead?)
+		APawn* TempPlayerPawn = TempPlayerController->GetPawn();
+		if (TempPlayerPawn == nullptr) // its dead
+		{ 
+			// Respawn the player pawn
+			RestartPlayer(TempPlayerController);
+		}
+	}
 }
