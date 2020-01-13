@@ -30,6 +30,12 @@ public:
 	// Override the UE4 GetPawnViewLocation() function, which is called by the GetActorEyesViewPoint() on Weapon.
 	virtual FVector GetPawnViewLocation() const override;
 
+	/// Moved to Public, because we want to access these in our behavoir tree.
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	void StartFireWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	void StopFireWeapon();
 
 
 protected:
@@ -45,8 +51,6 @@ protected:
 	void EndCrouch();
 	void BeginZoom();
 	void EndZoom();
-	void StartFireWeapon();
-	void StopFireWeapon();
 
 	//  Movement Properties
 	//TODO: BUG: Build own Movement componenent and replicate speed properly for clients, since Speedboost is BUSTED on clients. Fix the silly Blueprint code suggested by lecure.
