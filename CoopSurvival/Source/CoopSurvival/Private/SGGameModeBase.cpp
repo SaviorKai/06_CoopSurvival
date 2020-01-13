@@ -174,7 +174,7 @@ void ASGGameModeBase::RespawnDeadPlayers()
 		// Check the pawn for this player exists (Is it dead?)
 		APawn* TempPlayerPawn = TempPlayerController->GetPawn();
 		if (TempPlayerPawn == nullptr) // its dead
-		{ 
+		{
 			// Respawn the player pawn
 			RestartPlayer(TempPlayerController);
 		}
