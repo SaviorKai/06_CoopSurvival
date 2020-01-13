@@ -90,6 +90,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")									// NOTE: This is set in the blueprint editor (and we made it a dropdown)
 	TSubclassOf<UCameraShake> FireCamShakeClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setup", meta = (ClampMin=0.0f))			// This will clamp the min value in the editor.
+	float BulletSpread;
 	
 	
 	/// [NETWORKING]

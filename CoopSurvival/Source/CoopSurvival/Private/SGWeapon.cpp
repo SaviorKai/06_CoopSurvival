@@ -35,9 +35,10 @@ ASGWeapon::ASGWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 	TracerBeamEndName = "BeamEnd";
 
-	SetReplicates(true);
+	BulletSpread = 2.0f;
 
 	/// [NETWORKING]: Ensuring the tick rate of this actor is not changed by the engine.
+	SetReplicates(true);
 	NetUpdateFrequency = 66.0f;
 	MinNetUpdateFrequency = 33.0f;
 
@@ -71,16 +72,19 @@ void ASGWeapon::Fire()
 	
 	/// Trace the world, from Pawn Eyes, to Crosshair location.															
 	
-	// Calculate Start Location
-	auto MyOwner = GetOwner();													// NOTE!!! You have to set it's 'Owner' var on SPAWN for this to work. 
-	if (!MyOwner) { return; }													// Pointer protection.
+	// Calculate Start Location & Direction Vector
+	auto MyOwner = GetOwner();															// NOTE!!! You have to set it's 'Owner' var on SPAWN for this to work. 
+	if (!MyOwner) { return; }															// Pointer protection.
 	FVector EyeLocation;
-	FRotator EyeRotation;														// We don't use this, but need an Out parameter for this function.
-	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);					// OUT parameters
-	
-	// Calculate End Location
-	FVector EndLocation = EyeLocation + (EyeRotation.Vector() * 10000);			// No need to update this magic number, it should be far enough to hit something.
-	FVector FinalHitLocation = EndLocation;										// This is set here, and updated depending on if we hit something.
+	FRotator EyeRotation;																// We don't use this, but need an Out parameter for this function.
+	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);							// OUT parameters
+	FVector ShotDirection = EyeRotation.Vector();
+	float HalfRad = FMath::DegreesToRadians(BulletSpread);								// Change degrees to radians
+	ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);			// Create the randomized Cone of spread.
+
+	/// Calculate End Location
+	FVector EndLocation = EyeLocation + (ShotDirection * 10000);					// No need to update this magic number, it should be far enough to hit something.
+	FVector FinalHitLocation = EndLocation;						// This is set here, and updated depending on if we hit something.
 
 	// Set Default Hit SurfaceType Var
 	EPhysicalSurface HitSurfaceType = EPhysicalSurface::SurfaceType_Default;
