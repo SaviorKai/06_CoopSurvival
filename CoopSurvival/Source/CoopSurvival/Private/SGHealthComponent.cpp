@@ -18,6 +18,8 @@ USGHealthComponent::USGHealthComponent()
 
 	bHasDied = false;
 
+	TeamNum = 255;
+
 	SetIsReplicated(true);  // Components use this instead of SetReplicates(true);
 }
 
@@ -50,6 +52,12 @@ void USGHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage,
 {
 	if (bHasDied) { return; }
 	if (Damage <= 0.0f) { return; }
+	
+	// Check Friendly Fire
+	if (DamagedActor != DamageCauser)	// If I'm not damaging myself (Trackerbot) Skip friendly fire check and execute the damage to myself.
+	{
+		if (IsFriendly(DamagedActor, DamageCauser)) { return; }
+	}
 
 	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
 
@@ -66,6 +74,19 @@ void USGHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage,
 			MyGameMode->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy);
 		}
 	}
+}
+
+
+bool USGHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
+{
+	if (!ActorA || !ActorB) { return true; }													// Pointer protection, assume 'Friendly'
+	
+	USGHealthComponent* HealthComp_A = ActorA->FindComponentByClass<USGHealthComponent>();
+	USGHealthComponent* HealthComp_B = ActorB->FindComponentByClass<USGHealthComponent>();
+
+	if (!HealthComp_A || !HealthComp_B) { return true; }										// Pointer protection, assume 'Friendly'
+	
+	return (HealthComp_A->TeamNum == HealthComp_B->TeamNum);									// Check if A's team num is = to B's  team num, and return bool. True = Friendly.
 }
 
 

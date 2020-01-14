@@ -27,6 +27,12 @@ public:
 	//HelperFunction
 	float GetHealth() const;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup")
+	uint8 TeamNum;											// We are using uint8 here instead of int32 because we are trying to limit what we replicate. uint8 uses less, and only has 255 values.
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Setup)
+	static bool IsFriendly(AActor* ActorA, AActor* ActorB);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

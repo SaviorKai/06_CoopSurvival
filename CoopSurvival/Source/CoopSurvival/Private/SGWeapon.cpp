@@ -128,7 +128,7 @@ void ASGWeapon::Fire()
 			EyeRotation.Vector(),
 			Hit,
 			MyOwner->GetInstigatorController(),
-			this,
+			MyOwner,
 			DamageType
 		);
 	}
