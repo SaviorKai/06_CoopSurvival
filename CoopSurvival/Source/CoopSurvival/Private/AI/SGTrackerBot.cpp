@@ -98,12 +98,41 @@ void ASGTrackerBot::Tick(float DeltaTime)
 FVector ASGTrackerBot::GetNextPathPoint()
 {
 	FVector MyLocation = GetActorLocation();
-	ACharacter* TargetActor = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0); // TODO: Fix for multiplayer
+	ACharacter* TargetCharacter = nullptr;
+	APawn* BestTargetPawn = nullptr;
+	float NearestTargetDistance = 1000000.0f;
+
+	///Iterate Through pawn targets
+	FConstPawnIterator Targets = GetWorld()->GetPawnIterator(); //TODO: Review this as it may be deprecated in the future.
+	
+	for (Targets; Targets; ++Targets)
+	{
+		APawn* TestPawn = Targets->Get();
+
+		//Valid checks
+		if (!TestPawn) { continue; }
+		if (!Cast<ACharacter>(TestPawn)) { continue; }
+		if (!TestPawn->IsPlayerControlled()) { continue; }
+		
+		//Distance Check
+		if (NearestTargetDistance > (TestPawn->GetActorLocation() - MyLocation).Size())
+		{
+			//Update Target & new best distance
+			NearestTargetDistance = (TestPawn->GetActorLocation() - MyLocation).Size();
+			BestTargetPawn = Cast<ACharacter>(TestPawn);
+		}
+	}
+	
+	/// Asign the Pawn and do the Nav calculations
+	if (BestTargetPawn)
+	{
+		TargetCharacter = Cast<ACharacter>(BestTargetPawn);m
+	}
 
 	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(
 		GetWorld(),
 		MyLocation,
-		TargetActor
+		TargetCharacter
 	);
 
 	if (NavPath && NavPath->PathPoints.Num() > 1) 
@@ -203,7 +232,10 @@ void ASGTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 	
 	// Check if the overlapping actor is a character
 	if (!bStartedSelfDestruct && !bHasDied)
-	{
+	{	
+		// Check if Friendly
+		if (OtherActor->FindComponentByClass<USGHealthComponent>()->IsFriendly(this, OtherActor)) {	return;	}
+		
 		// Check if it's a character (player)
 		if (Cast<ASGCharacter>(OtherActor)) 
 		{
