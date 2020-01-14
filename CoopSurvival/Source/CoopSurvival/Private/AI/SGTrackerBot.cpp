@@ -126,7 +126,7 @@ FVector ASGTrackerBot::GetNextPathPoint()
 	/// Asign the Pawn and do the Nav calculations
 	if (BestTargetPawn)
 	{
-		TargetCharacter = Cast<ACharacter>(BestTargetPawn);m
+		TargetCharacter = Cast<ACharacter>(BestTargetPawn);
 	}
 
 	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(
